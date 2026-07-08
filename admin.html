@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Library Management System - Admin Panel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Digital Library Management System</h1>
+        <nav>
+            <a href="index.html">Catalog</a>
+            <a href="member.html">Member Portal</a>
+            <a href="admin.html">Admin Panel</a>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Admin / Librarian Panel</h2>
+
+        <h3>Analytics Dashboard</h3>
+        <div class="statGrid">
+            <div class="statCard"> <span class="statNum">248</span>Total Books</div>
+            <div class="statCard"> <span class="statNum">1</span>Books Issued</div>
+            <div class="statCard"> <span class="statNum">2</span>Active Members</div>
+            <div class="statCard"> <span class="statNum">₹20</span>Fines Pending</div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Most Borrowed Books</th>
+                    <th>Times Borrowed</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>The Alchemist</td>
+                    <td>14</td>
+                </tr>
+                <tr>
+                    <td>1984</td>
+                    <td>11</td>
+                </tr>
+                <tr>
+                    <td>Atomic Habits</td>
+                    <td>9</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Bulk Import Books (CSV)</h3>
+        <form>
+            <input type="file" disabled>
+            <button type="button">Upload &amp; Auto-Fetch by ISBN</button>
+        </form>
+
+        <h3>Add New Book</h3>
+        <form>
+            <input type="text" placeholder="Title">
+            <input type="text" placeholder="Author">
+            <input type="text" placeholder="Genre">
+            <button type="button">Add Book</button>
+        </form>
+
+        <h3>Issue Book to Member</h3>
+        <form>
+            <select>
+                <option>The Alchemist</option>
+                <option>Clean Code</option>
+                <option>Sapiens</option>
+                <option>Atomic Habits</option>
+                <option>A Brief History of Time</option>
+            </select>
+            <select>
+                <option>Ringkhang</option>
+                <option>Riya</option>
+                <option>Aman</option>
+            </select>
+            <button type="button">Issue</button>
+        </form>
+
+        <h3>Return Book</h3>
+        <form>
+            <select>
+                <option>1984 (Riya)</option>
+            </select>
+            <button type="button">Return</button>
+        </form>
+
+        <h3>All Members</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Books Currently Borrowed</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Riya</td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td>Aman</td>
+                    <td>0</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>All Books (Inventory)</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Genre</th>
+                    <th>Status</th>
+                    <th>Due Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>The Alchemist</td>
+                    <td>Paulo Coelho</td>
+                    <td>Fiction</td>
+                    <td>Available</td>
+                    <td>—</td>
+                </tr>
+                <tr>
+                    <td>Clean Code</td>
+                    <td>Robert C. Martin</td>
+                    <td>Technology</td>
+                    <td>Available</td>
+                    <td>—</td>
+                </tr>
+                <tr>
+                    <td>Sapiens</td>
+                    <td>Yuval Noah Harari</td>
+                    <td>History</td>
+                    <td>Available</td>
+                    <td>—</td>
+                </tr>
+                <tr>
+                    <td>1984</td>
+                    <td>George Orwell</td>
+                    <td>Fiction</td>
+                    <td>Issued</td>
+                    <td>2026-07-05</td>
+                </tr>
+                <tr>
+                    <td>Atomic Habits</td>
+                    <td>James Clear</td>
+                    <td>Self-Help</td>
+                    <td>Available</td>
+                    <td>—</td>
+                </tr>
+                <tr>
+                    <td>A Brief History of Time</td>
+                    <td>Stephen Hawking</td>
+                    <td>Science</td>
+                    <td>Available</td>
+                    <td>—</td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+
+</body>
+
+</html>
