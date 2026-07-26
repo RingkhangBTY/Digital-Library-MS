@@ -1,0 +1,96 @@
+function escapeHtml(str) {
+  const d = document.createElement("div");
+  d.textContent = str == null ? "" : String(str);
+  return d.innerHTML;
+}
+
+async function api(url, options = {}) {
+  const res = await fetch(url, {
+    headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
+    ...options
+  });
+  let data = {};
+  try { data = await res.json(); } catch (e) { }
+  if (!res.ok) throw new Error(data.error || "Request failed");
+  return data;
+}
+
+function formatValue(book) {
+  return book.format.includes("E-Book")
+    ? `Physical <span class="badge">E-Book</span>`
+    : escapeHtml(book.format);
+}
+
+function rowHtml(book) {
+  const available = book.availableCopies > 0;
+  const statusText = available ? "Available" : "Issued";
+  const statusClass = available ? "status-available" : "status-issued";
+  const actionCell = available
+    ? `<button data-book-id="${book.id}" class="reserve-btn">Reserve</button>`
+    : `—`;
+  return `
+    <tr>
+      <td data-label="Title">${escapeHtml(book.title)}</td>
+      <td data-label="Author">${escapeHtml(book.author)}</td>
+      <td data-label="Genre">${escapeHtml(book.genre)}</td>
+      <td data-label="Branch">${escapeHtml(book.branch)}</td>
+      <td data-label="Format">${formatValue(book)}</td>
+      <td data-label="Status"><span class="${statusClass}">${statusText}</span></td>
+      <td data-label="Action">${actionCell} <span class="qrTag">QR: ${escapeHtml(book.qr)}</span></td>
+    </tr>
+  `;
+}
+
+async function loadBooks() {
+  const q = document.getElementById("searchInput").value.trim();
+  const genre = document.getElementById("genreFilter").value;
+  const status = document.getElementById("statusFilter").value;
+
+  const params = new URLSearchParams();
+  if (q) params.set("q", q);
+  if (genre) params.set("genre", genre);
+  if (status) params.set("status", status);
+
+  const data = await api("/api/books?" + params.toString());
+  const tbody = document.getElementById("bookTableBody");
+
+  if (!data.books.length) {
+    tbody.innerHTML = `<tr><td colspan="7">No books match your search.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.books.map(rowHtml).join("");
+
+  document.querySelectorAll(".reserve-btn").forEach(btn => {
+    btn.addEventListener("click", () => reserveBook(btn.dataset.bookId, btn));
+  });
+}
+
+function showMsg(text, ok) {
+  const el = document.getElementById("reserveMsg");
+  el.textContent = text;
+  el.className = "msg " + (ok ? "success" : "error");
+  el.style.display = "block";
+}
+
+async function reserveBook(bookId, btn) {
+  btn.disabled = true;
+  try {
+    await api("/api/loans/reserve", { method: "POST", body: JSON.stringify({ bookId }) });
+    showMsg("Reserved! Check My Reservations in the Member Portal.", true);
+    loadBooks();
+  } catch (e) {
+    showMsg(e.message.includes("log in") ? "Please log in on the Member Portal to reserve books." : e.message, false);
+    btn.disabled = false;
+  }
+}
+
+document.getElementById("searchInput").addEventListener("input", () => {
+  clearTimeout(window._t);
+  window._t = setTimeout(loadBooks, 250);
+});
+document.getElementById("genreFilter").addEventListener("change", loadBooks);
+document.getElementById("statusFilter").addEventListener("change", loadBooks);
+
+loadBooks();

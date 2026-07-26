@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Library Management System - Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <header>
+    <h1>Digital Library Management System</h1>
+    <nav>
+      <a href="index.html">Catalog</a>
+      <a href="member.html">Member Portal</a>
+      <a href="admin.html" class="active">Admin Panel</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Admin / Librarian Panel</h2>
+
+    <div id="loginSection" class="login-box">
+      <p style="margin-top:0;">Librarian login required.</p>
+      <div class="controls">
+        <input type="text" id="loginName" placeholder="Name">
+        <input type="password" id="loginPassword" placeholder="Password">
+      </div>
+      <button id="loginBtn">Login</button>
+      <div id="authMsg" class="msg"></div>
+      <p class="note">Demo account: <strong>Head Librarian</strong> / admin123</p>
+    </div>
+
+    <div id="panelSection" style="display:none;">
+      <div class="user-info">
+        Logged in as <strong id="librarianNameLabel"></strong>
+        <button id="logoutBtn" class="secondary">Log out</button>
+      </div>
+
+      <h3>Analytics Dashboard</h3>
+      <div class="statGrid" id="statGrid"></div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Most Borrowed Books</th>
+            <th>Times Borrowed</th>
+          </tr>
+        </thead>
+        <tbody id="mostBorrowedBody">
+          <tr>
+            <td colspan="2">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Add New Book</h3>
+      <div id="addBookMsg" class="msg"></div>
+      <form class="inline-form" id="addBookForm">
+        <input type="text" id="newTitle" placeholder="Title" required>
+        <input type="text" id="newAuthor" placeholder="Author" required>
+        <input type="text" id="newGenre" placeholder="Genre">
+        <input type="text" id="newBranch" placeholder="Branch">
+        <input type="number" id="newCopies" placeholder="Total copies" min="1" value="1" style="width:110px;">
+        <button type="submit">Add Book</button>
+      </form>
+
+      <h3>Issue Book to Member</h3>
+      <div id="issueMsg" class="msg"></div>
+      <form class="inline-form" id="issueForm">
+        <select id="issueBookSelect"></select>
+        <select id="issueMemberSelect"></select>
+        <button type="submit">Issue</button>
+      </form>
+
+      <h3>Return Book</h3>
+      <div id="returnMsg" class="msg"></div>
+      <form class="inline-form" id="returnForm">
+        <select id="returnLoanSelect"></select>
+        <button type="submit">Return</button>
+      </form>
+
+      <h3>All Members</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Books Currently Borrowed</th>
+          </tr>
+        </thead>
+        <tbody id="membersBody">
+          <tr>
+            <td colspan="2">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>All Books (Inventory)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Genre</th>
+            <th>Copies</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="inventoryBody">
+          <tr>
+            <td colspan="6">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="admin.js"></script>
+</body>
+
+</html>

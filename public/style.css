@@ -1,0 +1,283 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background: #f7f7f7;
+  color: #222;
+}
+
+header {
+  background: #1e2f23;
+  color: #fff;
+  padding: 16px 24px;
+}
+
+header h1 {
+  margin: 0 0 8px;
+  font-size: 1.4rem;
+}
+
+nav a {
+  color: #fff;
+  text-decoration: none;
+  margin-right: 16px;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+nav a:hover,
+nav a.active {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+main {
+  max-width: 960px;
+  margin: 24px auto;
+  padding: 0 20px 40px;
+}
+
+h2 {
+  margin-top: 0;
+}
+
+h3 {
+  margin-top: 28px;
+  margin-bottom: 10px;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.controls input[type="text"],
+.controls input[type="password"],
+.controls select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.controls input[type="text"] {
+  flex: 1;
+  min-width: 180px;
+}
+
+button {
+  background: #2c5530;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+button:hover {
+  background: #234425;
+}
+
+button:disabled {
+  background: #999;
+  cursor: not-allowed;
+}
+
+button.secondary {
+  background: #6b6b6b;
+}
+
+button.secondary:hover {
+  background: #545454;
+}
+
+button.danger {
+  background: #a83232;
+}
+
+button.danger:hover {
+  background: #8a2828;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  margin-bottom: 8px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 0.9rem;
+}
+
+th {
+  background: #eef0ec;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #444;
+}
+
+.badge {
+  background: #dceee0;
+  color: #1e5e2b;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.75rem;
+}
+
+.qrTag {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #666;
+  margin-left: 6px;
+}
+
+.status-available {
+  color: #1e7a33;
+  font-weight: bold;
+}
+
+.status-issued,
+.status-overdue {
+  color: #a83232;
+  font-weight: bold;
+}
+
+.status-reserved {
+  color: #a1740f;
+  font-weight: bold;
+}
+
+.note {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 16px;
+}
+
+.notifyList {
+  background: #fff8e6;
+  border: 1px solid #f0d98c;
+  padding: 12px 18px;
+  border-radius: 4px;
+  font-size: 0.88rem;
+}
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.statCard {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 14px;
+  font-size: 0.85rem;
+  color: #444;
+}
+
+.statNum {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #1e2f23;
+}
+
+form.inline-form {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.msg {
+  padding: 10px 14px;
+  border-radius: 4px;
+  font-size: 0.87rem;
+  margin: 10px 0;
+  display: none;
+}
+
+.msg.error {
+  background: #fbeae6;
+  border: 1px solid #a83232;
+  color: #7a3324;
+}
+
+.msg.success {
+  background: #eaf0e7;
+  border: 1px solid #2c5530;
+  color: #1e3b21;
+}
+
+.login-box {
+  max-width: 360px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.login-box .controls {
+  margin-bottom: 10px;
+}
+
+.user-info {
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
+.user-info button {
+  margin-left: 10px;
+}
+
+@media (max-width: 600px) {
+
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    display: block;
+  }
+
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  td {
+    border: none;
+    border-bottom: 1px solid #eee;
+    position: relative;
+    padding-left: 45%;
+  }
+
+  td::before {
+    position: absolute;
+    left: 10px;
+    width: 40%;
+    white-space: nowrap;
+    font-weight: bold;
+    font-size: 0.75rem;
+    color: #666;
+    content: attr(data-label);
+  }
+}

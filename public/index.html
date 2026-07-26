@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Library Management System - Catalog</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <header>
+    <h1>Digital Library Management System</h1>
+    <nav>
+      <a href="index.html" class="active">Catalog</a>
+      <a href="member.html">Member Portal</a>
+      <a href="admin.html">Admin Panel</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Book Catalog</h2>
+
+    <div class="controls">
+      <input type="text" id="searchInput" placeholder="Search by title or author...">
+      <select id="genreFilter">
+        <option>All Genres</option>
+        <option>Fiction</option>
+        <option>Technology</option>
+        <option>History</option>
+        <option>Self-Help</option>
+        <option>Science</option>
+      </select>
+      <select id="statusFilter">
+        <option>All Status</option>
+        <option>Available</option>
+        <option>Issued</option>
+      </select>
+    </div>
+
+    <div id="reserveMsg" class="msg"></div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Genre</th>
+          <th>Branch</th>
+          <th>Format</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="bookTableBody">
+        <tr>
+          <td colspan="7">Loading catalog…</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="note">Titles marked <span class="badge">E-Book</span> are also available for instant digital download
+      or purchase from the member portal. Each catalog entry carries a unique QR code shown as a text tag,
+      used for quick checkout at the circulation desk. Reserving a book requires a member login.</p>
+  </main>
+
+  <script src="index.js"></script>
+</body>
+
+</html>

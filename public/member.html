@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Library Management System - Member Portal</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <header>
+    <h1>Digital Library Management System</h1>
+    <nav>
+      <a href="index.html">Catalog</a>
+      <a href="member.html" class="active">Member Portal</a>
+      <a href="admin.html">Admin Panel</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Member Portal</h2>
+
+    <div id="loginSection" class="login-box">
+      <p style="margin-top:0;">Log in with your name and password. New member? Just fill in the form and submit — it
+        registers you automatically.</p>
+      <div class="controls">
+        <input type="text" id="loginName" placeholder="Your name">
+        <input type="password" id="loginPassword" placeholder="Password">
+      </div>
+      <button id="loginBtn">Login</button>
+      <button id="registerBtn" class="secondary">Register</button>
+      <div id="authMsg" class="msg"></div>
+      <p class="note">Demo accounts: <strong>Ringkhang</strong> / member123, <strong>Riya</strong> / member123,
+        <strong>Aman</strong> / member123</p>
+    </div>
+
+    <div id="portalSection" style="display:none;">
+      <div class="user-info">
+        Welcome, <strong id="memberNameLabel"></strong>
+        <button id="logoutBtn" class="secondary">Log out</button>
+      </div>
+
+      <h3>Notifications</h3>
+      <ul class="notifyList" id="notifyList"></ul>
+
+      <h3>My Borrowed Books</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Due Date</th>
+            <th>Fine</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="borrowedBody">
+          <tr>
+            <td colspan="4">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>My Reservations</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="reservedBody">
+          <tr>
+            <td colspan="3">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Borrowing History</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Borrowed On</th>
+            <th>Returned On</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody">
+          <tr>
+            <td colspan="3">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="member.js"></script>
+</body>
+
+</html>
