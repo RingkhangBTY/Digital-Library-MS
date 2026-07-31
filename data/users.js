@@ -1,6 +1,7 @@
 const crypto = require("crypto");
+const { getDb, getNextId } = require("./db");
 
-// Dependency-free salted hash
+// salted hash
 function hash(password, salt) {
   return crypto.createHash("sha256").update(salt + password).digest("hex");
 }
@@ -10,6 +11,7 @@ function makeAccount({ id, name, email, password, extra = {} }) {
   return {
     id,
     name,
+    nameLower: name.toLowerCase(),
     email,
     salt,
     passwordHash: hash(password, salt),
@@ -17,48 +19,65 @@ function makeAccount({ id, name, email, password, extra = {} }) {
   };
 }
 
-// --- Members  ---
-let members = [
-  makeAccount({ id: 1, name: "Ringkhang", email: "ringkhang@example.com", password: "member123" }),
-  makeAccount({ id: 2, name: "Riya", email: "riya@example.com", password: "member123" }),
-  makeAccount({ id: 3, name: "Aman", email: "aman@example.com", password: "member123" })
-];
-let nextMemberId = members.length + 1;
+function sanitizeAccount(account) {
+  if (!account) return null;
+  const { _id, ...rest } = account;
+  return rest;
+}
 
-// --- Librarians ---
-let librarians = [
-  makeAccount({ id: 1, name: "Head Librarian", email: "librarian@example.com", password: "admin123" })
-];
+async function getAllMembers() {
+  const db = await getDb();
+  const members = await db.collection("members").find({}).sort({ id: 1 }).toArray();
+  return members.map(sanitizeAccount);
+}
 
-function getAllMembers() {
-  return members;
+async function getMemberById(id) {
+  const db = await getDb();
+  const member = await db.collection("members").findOne({ id: Number(id) });
+  return sanitizeAccount(member);
 }
-function getMemberById(id) {
-  return members.find(m => m.id === Number(id));
+
+async function getMemberByName(name) {
+  const db = await getDb();
+  const member = await db.collection("members").findOne({ nameLower: String(name).toLowerCase() });
+  return sanitizeAccount(member);
 }
-function getMemberByName(name) {
-  return members.find(m => m.name.toLowerCase() === String(name).toLowerCase());
-}
+
 function verifyMemberPassword(member, password) {
   return hash(password, member.salt) === member.passwordHash;
 }
-function createMember({ name, email, password }) {
-  if (getMemberByName(name)) throw new Error("A member with that name already exists.");
-  const member = makeAccount({ id: nextMemberId++, name, email, password });
-  members.push(member);
+
+async function createMember({ name, email, password }) {
+  if (await getMemberByName(name)) throw new Error("A member with that name already exists.");
+  const id = await getNextId("members");
+  const member = makeAccount({ id, name, email, password });
+  const db = await getDb();
+  try {
+    await db.collection("members").insertOne(member);
+  } catch (error) {
+    if (error && error.code === 11000) {
+      throw new Error("A member with that name already exists.");
+    }
+    throw error;
+  }
   return member;
 }
 
-function getLibrarianByName(name) {
-  return librarians.find(l => l.name.toLowerCase() === String(name).toLowerCase());
+async function getLibrarianByName(name) {
+  const db = await getDb();
+  const librarian = await db
+    .collection("librarians")
+    .findOne({ nameLower: String(name).toLowerCase() });
+  return sanitizeAccount(librarian);
 }
+
 function verifyLibrarianPassword(librarian, password) {
   return hash(password, librarian.salt) === librarian.passwordHash;
 }
 
 function toPublic(account) {
   if (!account) return null;
-  const { passwordHash, salt, ...pub } = account;
+  const { passwordHash, salt, nameLower, ...pub } = account;
   return pub;
 }
 

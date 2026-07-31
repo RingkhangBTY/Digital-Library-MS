@@ -4,10 +4,13 @@ const loans = require("../data/loans");
 const books = require("../data/books");
 const users = require("../data/users");
 const { requireMember, requireLibrarian } = require("../middleware/auth");
+const { asyncHandler } = require("../middleware/asyncHandler");
 
-function enrich(loan) {
-  const book = books.getById(loan.bookId);
-  const member = users.getMemberById(loan.memberId);
+async function enrich(loan) {
+  const [book, member] = await Promise.all([
+    books.getById(loan.bookId),
+    users.getMemberById(loan.memberId)
+  ]);
   return {
     ...loan,
     bookTitle: book ? book.title : "Unknown book",
@@ -17,31 +20,32 @@ function enrich(loan) {
 }
 
 // Member: reserve a book (only makes sense if it's unavailable, but we allow either way per brief)
-router.post("/reserve", requireMember, (req, res) => {
+router.post("/reserve", requireMember, asyncHandler(async (req, res) => {
   const { bookId } = req.body;
-  const book = books.getById(bookId);
+  const book = await books.getById(bookId);
   if (!book) return res.status(404).json({ error: "Book not found." });
-  const loan = loans.reserve({ bookId, memberId: req.session.member.id });
-  res.status(201).json({ loan: enrich(loan) });
-});
+  const loan = await loans.reserve({ bookId, memberId: req.session.member.id });
+  res.status(201).json({ loan: await enrich(loan) });
+}));
 
 // Librarian: issue a book directly to a member
-router.post("/issue", requireLibrarian, (req, res) => {
+router.post("/issue", requireLibrarian, asyncHandler(async (req, res) => {
   const { bookId, memberId } = req.body;
-  const book = books.getById(bookId);
+  const book = await books.getById(bookId);
   if (!book) return res.status(404).json({ error: "Book not found." });
-  if (!users.getMemberById(memberId)) return res.status(404).json({ error: "Member not found." });
+  if (!(await users.getMemberById(memberId))) return res.status(404).json({ error: "Member not found." });
   if (book.availableCopies <= 0) return res.status(409).json({ error: "No copies available to issue." });
 
-  books.decrementAvailable(bookId);
-  const loan = loans.issue({ bookId, memberId });
-  res.status(201).json({ loan: enrich(loan) });
-});
+  const decremented = await books.decrementAvailable(bookId);
+  if (!decremented) return res.status(409).json({ error: "No copies available to issue." });
+  const loan = await loans.issue({ bookId, memberId });
+  res.status(201).json({ loan: await enrich(loan) });
+}));
 
 // Return — a member can return their own loan, a librarian can return any loan
-router.post("/return", (req, res) => {
+router.post("/return", asyncHandler(async (req, res) => {
   const { loanId } = req.body;
-  const loan = loans.getById(loanId);
+  const loan = await loans.getById(loanId);
   if (!loan) return res.status(404).json({ error: "Loan not found." });
 
   const isOwner = req.session.member && req.session.member.id === loan.memberId;
@@ -53,44 +57,46 @@ router.post("/return", (req, res) => {
     return res.status(409).json({ error: "This book was already returned." });
   }
 
-  loans.markReturned(loanId);
-  books.incrementAvailable(loan.bookId);
-  res.json({ loan: enrich(loan) });
-});
+  const updated = await loans.markReturned(loanId);
+  await books.incrementAvailable(loan.bookId);
+  res.json({ loan: await enrich(updated) });
+}));
 
 // Member: pay their own fine
-router.post("/pay-fine", requireMember, (req, res) => {
+router.post("/pay-fine", requireMember, asyncHandler(async (req, res) => {
   const { loanId } = req.body;
-  const loan = loans.getById(loanId);
+  const loan = await loans.getById(loanId);
   if (!loan) return res.status(404).json({ error: "Loan not found." });
   if (loan.memberId !== req.session.member.id) {
     return res.status(403).json({ error: "You can only pay your own fines." });
   }
-  loans.payFine(loanId);
-  res.json({ loan: enrich(loan), message: "Fine paid." });
-});
+  const updated = await loans.payFine(loanId);
+  res.json({ loan: await enrich(updated), message: "Fine paid." });
+}));
 
 // Member: cancel their own reservation
-router.delete("/reserve/:id", requireMember, (req, res) => {
-  const loan = loans.getById(req.params.id);
+router.delete("/reserve/:id", requireMember, asyncHandler(async (req, res) => {
+  const loan = await loans.getById(req.params.id);
   if (!loan) return res.status(404).json({ error: "Reservation not found." });
   if (loan.memberId !== req.session.member.id) {
     return res.status(403).json({ error: "You can only cancel your own reservation." });
   }
-  loans.cancelReservation(req.params.id);
+  await loans.cancelReservation(req.params.id);
   res.json({ message: "Reservation cancelled." });
-});
+}));
 
 // Member: view own loans/reservations/history
-router.get("/mine", requireMember, (req, res) => {
-  const result = loans.getByMember(req.session.member.id).map(enrich);
+router.get("/mine", requireMember, asyncHandler(async (req, res) => {
+  const memberLoans = await loans.getByMember(req.session.member.id);
+  const result = await Promise.all(memberLoans.map(enrich));
   res.json({ loans: result });
-});
+}));
 
 // Librarian: view everything
-router.get("/", requireLibrarian, (req, res) => {
-  const result = loans.getAll().map(enrich);
+router.get("/", requireLibrarian, asyncHandler(async (req, res) => {
+  const allLoans = await loans.getAll();
+  const result = await Promise.all(allLoans.map(enrich));
   res.json({ loans: result });
-});
+}));
 
 module.exports = router;

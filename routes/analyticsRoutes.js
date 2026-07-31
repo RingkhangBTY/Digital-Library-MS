@@ -2,12 +2,11 @@ const express = require("express");
 const router = express.Router();
 const books = require("../data/books");
 const loans = require("../data/loans");
-const users = require("../data/users");
 const { requireLibrarian } = require("../middleware/auth");
+const { asyncHandler } = require("../middleware/asyncHandler");
 
-router.get("/dashboard", requireLibrarian, (req, res) => {
-  const allBooks = books.getAll();
-  const allLoans = loans.getAll();
+router.get("/dashboard", requireLibrarian, asyncHandler(async (req, res) => {
+  const [allBooks, allLoans] = await Promise.all([books.getAll(), loans.getAll()]);
 
   const totalBooks = allBooks.reduce((sum, b) => sum + b.totalCopies, 0);
   const issuedCount = allLoans.filter(l => l.status === "borrowed" || l.status === "overdue").length;
@@ -28,6 +27,6 @@ router.get("/dashboard", requireLibrarian, (req, res) => {
     pendingFines,
     mostBorrowed
   });
-});
+}));
 
 module.exports = router;

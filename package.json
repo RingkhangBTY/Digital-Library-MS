@@ -1,14 +1,16 @@
 {
   "name": "digital-library-ms",
   "version": "1.0.0",
-  "description": "Digital Library Management System - Express backend with dummy data",
-  "main": "server.js",
+  "description": "Digital Library Management System - Express backend with MongoDB data",
+  "main": "app.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
+    "start": "node app.js",
+    "dev": "node --watch app.js"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
     "express": "^4.19.2",
-    "express-session": "^1.18.0"
+    "express-session": "^1.18.0",
+    "mongodb": "^6.18.0"
   }
 }

@@ -1,11 +1,12 @@
 # Digital Library Management System
 
-Express + Router backend wired to the existing catalog/member/admin pages, using in-memory dummy data (no database yet).
+Express + Router backend wired to the existing catalog/member/admin pages, using MongoDB for persistent storage.
 
 ## Run it
 
 ```bash
 npm install
+cp .env.example .env
 npm run dev
 ```
 
@@ -22,7 +23,7 @@ routes/                → express.Router() per resource
   memberRoutes.js       (librarian-only member list)
   analyticsRoutes.js    (admin dashboard stats)
 middleware/auth.js      → requireMember / requireLibrarian session guards
-data/                   → dummy in-memory "database" modules
+data/                   → MongoDB data access modules
   books.js, users.js, loans.js
 public/                 → static frontend (unchanged page structure)
   index.html, member.html, admin.html, style.css
@@ -34,20 +35,19 @@ public/                 → static frontend (unchanged page structure)
 - **Member Portal (`member.html`)** — name + password login (or register on the spot). Once logged in: borrow/return/pay fines/cancel reservations, all scoped to that member's own loans.
 - **Admin Panel (`admin.html`)** — gated behind a separate librarian login. Once in: add/delete books, issue/return any loan, view all members and live analytics.
 
-Sessions are cookie-based (`express-session`), stored server-side in memory. Restarting the server clears sessions and resets all dummy data back to its seeded state.
+Sessions are cookie-based (`express-session`), stored server-side in memory. Restarting the server clears sessions, but library records remain persisted in MongoDB.
 
-## Demo accounts
+Configure environment variables in `.env`:
 
-| Portal | Name | Password |
-|---|---|---|
-| Member | Ringkhang | member123 |
-| Member | Riya | member123 |
-| Member | Aman | member123 |
-| Admin | Head Librarian | admin123 |
+```bash
+PORT=3000
+MONGODB_URI=mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.8.3
+MONGODB_DB_NAME=digital_library_ms
+SESSION_SECRET=replace-with-a-strong-random-secret
+```
 
-`Riya` starts with an overdue copy of *1984* (fine accruing). `Ringkhang` starts with a *Clean Code* reservation ready for pickup, plus two items in borrowing history.
+The application no longer seeds predefined books, users, librarians, or loans at startup. Manage all records directly in your MongoDB database.
 
 ## Notes for next steps
 
-- Swap the `data/*.js` in-memory arrays for a real database — routes and controllers don't need to change, only the data layer.
-- Passwords are hashed with a salted SHA-256 (Node's built-in `crypto`) to avoid an npm dependency for the MVP; swap for `bcrypt` when you add a real database.
+- Passwords are hashed with a salted SHA-256 (Node's built-in `crypto`); for production, prefer `bcrypt` or `argon2`.
