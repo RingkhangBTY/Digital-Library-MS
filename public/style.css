@@ -67,7 +67,10 @@ h3 {
 
 .controls input[type="text"],
 .controls input[type="password"],
-.controls select {
+.controls select,
+.inline-form input[type="text"],
+.inline-form input[type="number"],
+.inline-form select {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -219,6 +222,12 @@ form.inline-form {
   font-size: 0.87rem;
   margin: 10px 0;
   display: none;
+}
+
+.action-cell {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .msg.error {

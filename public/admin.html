@@ -55,15 +55,18 @@
         </tbody>
       </table>
 
-      <h3>Add New Book</h3>
+      <h3 id="bookFormTitle">Add New Book</h3>
       <div id="addBookMsg" class="msg"></div>
       <form class="inline-form" id="addBookForm">
+        <input type="hidden" id="editingBookId">
         <input type="text" id="newTitle" placeholder="Title" required>
         <input type="text" id="newAuthor" placeholder="Author" required>
         <input type="text" id="newGenre" placeholder="Genre">
         <input type="text" id="newBranch" placeholder="Branch">
+        <input type="text" id="newFormat" placeholder="Format" value="Physical">
         <input type="number" id="newCopies" placeholder="Total copies" min="1" value="1" style="width:110px;">
-        <button type="submit">Add Book</button>
+        <button type="submit" id="bookSubmitBtn">Add Book</button>
+        <button type="button" id="cancelEditBtn" class="secondary" style="display:none;">Cancel</button>
       </form>
 
       <h3>Issue Book to Member</h3>

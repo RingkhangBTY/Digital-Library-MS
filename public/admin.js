@@ -4,6 +4,16 @@ function escapeHtml(str) {
   return d.innerHTML;
 }
 
+function resetBookForm() {
+  document.getElementById("addBookForm").reset();
+  document.getElementById("editingBookId").value = "";
+  document.getElementById("newCopies").value = "1";
+  document.getElementById("newFormat").value = "Physical";
+  document.getElementById("bookSubmitBtn").textContent = "Add Book";
+  document.getElementById("bookFormTitle").textContent = "Add New Book";
+  document.getElementById("cancelEditBtn").style.display = "none";
+}
+
 async function api(url, options = {}) {
   const res = await fetch(url, {
     headers: { "Content-Type": "application/json" },
@@ -71,10 +81,16 @@ async function loadInventory() {
         <td data-label="Genre">${escapeHtml(b.genre)}</td>
         <td data-label="Copies">${b.availableCopies} / ${b.totalCopies}</td>
         <td data-label="Status"><span class="${available ? "status-available" : "status-issued"}">${available ? "Available" : "Fully Issued"}</span></td>
-        <td data-label="Action"><button data-book-id="${b.id}" class="delete-book-btn danger">Delete</button></td>
+        <td data-label="Action" class="action-cell">
+          <button data-book-id="${b.id}" class="edit-book-btn secondary">Edit</button>
+          <button data-book-id="${b.id}" class="delete-book-btn danger">Delete</button>
+        </td>
       </tr>`;
   }).join("");
 
+  document.querySelectorAll(".edit-book-btn").forEach(btn => {
+    btn.addEventListener("click", () => editBook(btn.dataset.bookId));
+  });
   document.querySelectorAll(".delete-book-btn").forEach(btn => {
     btn.addEventListener("click", () => deleteBook(btn.dataset.bookId));
   });
@@ -116,17 +132,34 @@ async function refreshAll() {
 
 document.getElementById("addBookForm").addEventListener("submit", async (e) => {
   e.preventDefault();
+  const title = document.getElementById("newTitle").value.trim();
+  const author = document.getElementById("newAuthor").value.trim();
+  const genre = document.getElementById("newGenre").value.trim();
+  const branch = document.getElementById("newBranch").value.trim();
+  const format = document.getElementById("newFormat").value.trim();
+  const totalCopies = document.getElementById("newCopies").value;
+  const editingBookId = document.getElementById("editingBookId").value;
+
+  if (!title || !author) return showMsg("addBookMsg", "Title and author are required.", false);
+
   const body = {
-    title: document.getElementById("newTitle").value.trim(),
-    author: document.getElementById("newAuthor").value.trim(),
-    genre: document.getElementById("newGenre").value.trim(),
-    branch: document.getElementById("newBranch").value.trim(),
-    totalCopies: document.getElementById("newCopies").value
+    title,
+    author,
+    genre,
+    branch,
+    format: format || "Physical",
+    totalCopies: Number(totalCopies || 1)
   };
+
   try {
-    await api("/api/books", { method: "POST", body: JSON.stringify(body) });
-    showMsg("addBookMsg", "Book added to the catalog.", true);
-    document.getElementById("addBookForm").reset();
+    if (editingBookId) {
+      await api(`/api/books/${editingBookId}`, { method: "PUT", body: JSON.stringify(body) });
+      showMsg("addBookMsg", "Book updated in the catalog.", true);
+    } else {
+      await api("/api/books", { method: "POST", body: JSON.stringify(body) });
+      showMsg("addBookMsg", "Book added to the catalog.", true);
+    }
+    resetBookForm();
     await refreshAll();
   } catch (err) {
     showMsg("addBookMsg", err.message, false);
@@ -159,18 +192,41 @@ document.getElementById("returnForm").addEventListener("submit", async (e) => {
   }
 });
 
+async function editBook(bookId) {
+  try {
+    const data = await api("/api/books/" + bookId);
+    const book = data.book;
+    document.getElementById("editingBookId").value = book.id;
+    document.getElementById("newTitle").value = book.title || "";
+    document.getElementById("newAuthor").value = book.author || "";
+    document.getElementById("newGenre").value = book.genre || "";
+    document.getElementById("newBranch").value = book.branch || "";
+    document.getElementById("newFormat").value = book.format || "Physical";
+    document.getElementById("newCopies").value = book.totalCopies || 1;
+    document.getElementById("bookSubmitBtn").textContent = "Save Changes";
+    document.getElementById("bookFormTitle").textContent = "Edit Book";
+    document.getElementById("cancelEditBtn").style.display = "inline-block";
+    document.getElementById("newTitle").focus();
+  } catch (e) {
+    showMsg("addBookMsg", e.message, false);
+  }
+}
+
 async function deleteBook(bookId) {
   if (!confirm("Delete this book from the catalog?")) return;
   try {
     await api("/api/books/" + bookId, { method: "DELETE" });
+    showMsg("addBookMsg", "Book deleted from the catalog.", true);
+    resetBookForm();
     await refreshAll();
   } catch (e) {
-    alert(e.message);
+    showMsg("addBookMsg", e.message, false);
   }
 }
 
 document.getElementById("loginBtn").addEventListener("click", login);
 document.getElementById("logoutBtn").addEventListener("click", logout);
+document.getElementById("cancelEditBtn").addEventListener("click", resetBookForm);
 
 async function enterPanel() {
   const librarian = await checkSession();

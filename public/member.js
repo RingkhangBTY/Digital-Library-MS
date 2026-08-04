@@ -23,6 +23,19 @@ function showAuthMsg(text, ok) {
   el.style.display = "block";
 }
 
+function showPortalMsg(text, ok) {
+  const el = document.getElementById("portalActionMsg");
+  el.textContent = text;
+  el.className = "msg " + (ok ? "success" : "error");
+  el.style.display = "block";
+}
+
+function setBusy(button, isBusy, label) {
+  if (!button) return;
+  button.disabled = isBusy;
+  button.textContent = isBusy ? label : button.dataset.originalLabel || label;
+}
+
 async function checkSession() {
   const data = await api("/api/auth/member/me");
   return data.member;
@@ -121,40 +134,55 @@ async function loadPortalData() {
   notifyList.innerHTML = notifications.length ? notifications.join("") : `<li>No new notifications.</li>`;
 
   document.querySelectorAll(".return-btn").forEach(btn => {
-    btn.addEventListener("click", () => returnLoan(btn.dataset.loanId));
+    btn.dataset.originalLabel = btn.textContent;
+    btn.addEventListener("click", () => returnLoan(btn.dataset.loanId, btn));
   });
   document.querySelectorAll(".pay-btn").forEach(btn => {
-    btn.addEventListener("click", () => payFine(btn.dataset.loanId));
+    btn.dataset.originalLabel = btn.textContent;
+    btn.addEventListener("click", () => payFine(btn.dataset.loanId, btn));
   });
   document.querySelectorAll(".cancel-btn").forEach(btn => {
-    btn.addEventListener("click", () => cancelReservation(btn.dataset.loanId));
+    btn.dataset.originalLabel = btn.textContent;
+    btn.addEventListener("click", () => cancelReservation(btn.dataset.loanId, btn));
   });
 }
 
-async function returnLoan(loanId) {
+async function returnLoan(loanId, btn) {
+  setBusy(btn, true, "Returning...");
   try {
     await api("/api/loans/return", { method: "POST", body: JSON.stringify({ loanId }) });
+    showPortalMsg("Book returned successfully.", true);
     await loadPortalData();
   } catch (e) {
-    alert(e.message);
+    showPortalMsg(e.message, false);
+  } finally {
+    setBusy(btn, false, "Return");
   }
 }
 
-async function payFine(loanId) {
+async function payFine(loanId, btn) {
+  setBusy(btn, true, "Paying...");
   try {
     await api("/api/loans/pay-fine", { method: "POST", body: JSON.stringify({ loanId }) });
+    showPortalMsg("Fine paid successfully.", true);
     await loadPortalData();
   } catch (e) {
-    alert(e.message);
+    showPortalMsg(e.message, false);
+  } finally {
+    setBusy(btn, false, "Pay Fine Online");
   }
 }
 
-async function cancelReservation(loanId) {
+async function cancelReservation(loanId, btn) {
+  setBusy(btn, true, "Cancelling...");
   try {
     await api("/api/loans/reserve/" + loanId, { method: "DELETE" });
+    showPortalMsg("Reservation cancelled.", true);
     await loadPortalData();
   } catch (e) {
-    alert(e.message);
+    showPortalMsg(e.message, false);
+  } finally {
+    setBusy(btn, false, "Cancel");
   }
 }
 

@@ -46,6 +46,22 @@ async function update(id, updates) {
   delete updateDoc.id;
   delete updateDoc._id;
 
+  const current = await getById(id);
+  if (!current) return null;
+
+  const totalCopies = updateDoc.totalCopies != null ? Number(updateDoc.totalCopies) : current.totalCopies;
+  const normalizedTotalCopies = Number(totalCopies) > 0 ? Number(totalCopies) : 1;
+  let availableCopies = updateDoc.availableCopies != null ? Number(updateDoc.availableCopies) : current.availableCopies;
+
+  if (updateDoc.availableCopies == null) {
+    availableCopies = Math.min(Math.max(current.availableCopies, 0), normalizedTotalCopies);
+  }
+  availableCopies = Math.min(Math.max(availableCopies, 0), normalizedTotalCopies);
+
+  updateDoc.totalCopies = normalizedTotalCopies;
+  updateDoc.availableCopies = availableCopies;
+  updateDoc.format = updateDoc.format || current.format || "Physical";
+
   await db.collection("books").updateOne({ id: Number(id) }, { $set: updateDoc });
   return getById(id);
 }

@@ -75,13 +75,17 @@ function showMsg(text, ok) {
 }
 
 async function reserveBook(bookId, btn) {
+  const originalText = btn.textContent;
   btn.disabled = true;
+  btn.textContent = "Reserving...";
   try {
     await api("/api/loans/reserve", { method: "POST", body: JSON.stringify({ bookId }) });
     showMsg("Reserved! Check My Reservations in the Member Portal.", true);
-    loadBooks();
+    await loadBooks();
   } catch (e) {
     showMsg(e.message.includes("log in") ? "Please log in on the Member Portal to reserve books." : e.message, false);
+  } finally {
+    btn.textContent = originalText;
     btn.disabled = false;
   }
 }
