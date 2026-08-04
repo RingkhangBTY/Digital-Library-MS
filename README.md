@@ -12,6 +12,16 @@ npm run dev
 
 Then open http://localhost:3000
 
+For Render deployment, set these environment variables in the Render dashboard:
+
+```bash
+NODE_ENV=production
+PORT=3000
+MONGODB_URI=<your-mongodb-connection-string>
+MONGODB_DB_NAME=digital_library_ms
+SESSION_SECRET=<a-strong-random-secret>
+```
+
 ## Structure
 
 ```
