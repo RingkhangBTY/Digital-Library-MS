@@ -1,3 +1,5 @@
+let _allBooks = [];
+
 function escapeHtml(str) {
   const d = document.createElement("div");
   d.textContent = str == null ? "" : String(str);
@@ -69,10 +71,13 @@ async function loadDashboard() {
     : `<tr><td colspan="2">No borrowing data yet.</td></tr>`;
 }
 
-async function loadInventory() {
-  const data = await api("/api/books");
+function renderInventory(books) {
   const tbody = document.getElementById("inventoryBody");
-  tbody.innerHTML = data.books.map(b => {
+  if (!books.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#888;padding:20px;">No books match your search.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = books.map(b => {
     const available = b.availableCopies > 0;
     return `
       <tr>
@@ -94,6 +99,29 @@ async function loadInventory() {
   document.querySelectorAll(".delete-book-btn").forEach(btn => {
     btn.addEventListener("click", () => deleteBook(btn.dataset.bookId));
   });
+}
+
+function filterInventory() {
+  const q = (document.getElementById("inventorySearch").value || "").toLowerCase().trim();
+  const status = (document.getElementById("inventoryStatusFilter").value || "").toLowerCase();
+  const filtered = _allBooks.filter(b => {
+    const matchQ = !q ||
+      (b.title || "").toLowerCase().includes(q) ||
+      (b.author || "").toLowerCase().includes(q) ||
+      (b.genre || "").toLowerCase().includes(q);
+    const available = b.availableCopies > 0;
+    const matchStatus = !status ||
+      (status === "available" && available) ||
+      (status === "issued" && !available);
+    return matchQ && matchStatus;
+  });
+  renderInventory(filtered);
+}
+
+async function loadInventory() {
+  const data = await api("/api/books");
+  _allBooks = data.books;
+  renderInventory(_allBooks);
 
   const issueSelect = document.getElementById("issueBookSelect");
   issueSelect.innerHTML = data.books
@@ -223,6 +251,12 @@ async function deleteBook(bookId) {
     showMsg("addBookMsg", e.message, false);
   }
 }
+
+document.getElementById("inventorySearch").addEventListener("input", () => {
+  clearTimeout(window._invT);
+  window._invT = setTimeout(filterInventory, 200);
+});
+document.getElementById("inventoryStatusFilter").addEventListener("change", filterInventory);
 
 document.getElementById("loginBtn").addEventListener("click", login);
 document.getElementById("logoutBtn").addEventListener("click", logout);

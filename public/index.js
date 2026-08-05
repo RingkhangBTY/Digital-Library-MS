@@ -56,11 +56,21 @@ async function loadBooks() {
   const tbody = document.getElementById("bookTableBody");
 
   if (!data.books.length) {
-    tbody.innerHTML = `<tr><td colspan="7">No books match your search.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><span class="empty-state-icon">📭</span>No books match your search.<br><small>Try a different title, author or filter.</small></div></td></tr>`;
     return;
   }
 
   tbody.innerHTML = data.books.map(rowHtml).join("");
+
+  // Update info strip
+  const total = data.books.length;
+  const avail = data.books.filter(b => b.availableCopies > 0).length;
+  const issued = total - avail;
+  const genres = new Set(data.books.map(b => b.genre).filter(Boolean)).size;
+  document.getElementById('stripTotal').textContent = total;
+  document.getElementById('stripAvailable').textContent = avail;
+  document.getElementById('stripIssued').textContent = issued;
+  document.getElementById('stripGenres').textContent = genres || '—';
 
   document.querySelectorAll(".reserve-btn").forEach(btn => {
     btn.addEventListener("click", () => reserveBook(btn.dataset.bookId, btn));
@@ -77,13 +87,13 @@ function showMsg(text, ok) {
 async function reserveBook(bookId, btn) {
   const originalText = btn.textContent;
   btn.disabled = true;
-  btn.textContent = "Reserving...";
+  btn.textContent = "Reserving…";
   try {
     await api("/api/loans/reserve", { method: "POST", body: JSON.stringify({ bookId }) });
-    showMsg("Reserved! Check My Reservations in the Member Portal.", true);
+    showMsg("✅ Reserved! Check My Reservations in the Member Portal.", true);
     await loadBooks();
   } catch (e) {
-    showMsg(e.message.includes("log in") ? "Please log in on the Member Portal to reserve books." : e.message, false);
+    showMsg(e.message.includes("log in") ? "🔒 Please log in on the Member Portal to reserve books." : e.message, false);
   } finally {
     btn.textContent = originalText;
     btn.disabled = false;

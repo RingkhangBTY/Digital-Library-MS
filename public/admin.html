@@ -10,16 +10,30 @@
 
 <body>
   <header>
-    <h1>Digital Library Management System</h1>
-    <nav>
-      <a href="index.html">Catalog</a>
-      <a href="member.html">Member Portal</a>
-      <a href="admin.html" class="active">Admin Panel</a>
-    </nav>
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">DL</span>
+        <span class="logo-text">Digital Library</span>
+      </a>
+      <nav class="site-nav">
+        <a href="index.html">Catalog</a>
+        <a href="member.html">Member Portal</a>
+        <a href="admin.html" class="active">Admin Panel</a>
+      </nav>
+      <div class="header-actions">
+        <a href="member.html" class="header-link">Log in</a>
+        <button id="themeToggle" class="theme-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <span class="theme-icon">🌙</span>
+        </button>
+      </div>
+    </div>
   </header>
 
   <main>
-    <h2>Admin / Librarian Panel</h2>
+    <div class="page-hero">
+      <h2>Admin Panel</h2>
+      <p>Manage books, loans, members and analytics from one place.</p>
+    </div>
 
     <div id="loginSection" class="login-box">
       <p style="margin-top:0;">Librarian login required.</p>
@@ -100,6 +114,14 @@
       </table>
 
       <h3>All Books (Inventory)</h3>
+      <div class="controls" style="margin-bottom:10px;">
+        <input type="text" id="inventorySearch" placeholder="🔍  Search by title, author or genre…" style="flex:1;min-width:220px;">
+        <select id="inventoryStatusFilter">
+          <option value="">All Status</option>
+          <option value="available">Available</option>
+          <option value="issued">Fully Issued</option>
+        </select>
+      </div>
       <table>
         <thead>
           <tr>
@@ -121,6 +143,7 @@
   </main>
 
   <script src="admin.js"></script>
+  <script src="theme.js"></script>
 </body>
 
 </html>

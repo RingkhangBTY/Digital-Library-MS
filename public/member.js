@@ -48,9 +48,7 @@ async function login() {
   try {
     await api("/api/auth/member/login", { method: "POST", body: JSON.stringify({ name, password }) });
     await enterPortal();
-  } catch (e) {
-    showAuthMsg(e.message, false);
-  }
+  } catch (e) { showAuthMsg(e.message, false); }
 }
 
 async function register() {
@@ -60,9 +58,7 @@ async function register() {
   try {
     await api("/api/auth/member/register", { method: "POST", body: JSON.stringify({ name, password }) });
     await enterPortal();
-  } catch (e) {
-    showAuthMsg(e.message, false);
-  }
+  } catch (e) { showAuthMsg(e.message, false); }
 }
 
 async function logout() {
@@ -80,7 +76,7 @@ function loanRow(loan, kind) {
         <td data-label="Title">${escapeHtml(loan.bookTitle)}</td>
         <td data-label="Due Date">${escapeHtml(loan.dueDate)}</td>
         <td data-label="Fine">${fineText}</td>
-        <td data-label="Action">
+        <td data-label="Action" class="action-cell">
           <button data-loan-id="${loan.id}" class="return-btn">Return</button>
           ${payBtn}
         </td>
@@ -110,28 +106,30 @@ async function loadPortalData() {
   const reserved = loans.filter(l => l.status === "reserved");
   const history = loans.filter(l => l.status === "returned");
 
-  document.getElementById("borrowedBody").innerHTML = borrowed.length
-    ? borrowed.map(l => loanRow(l, "borrowed")).join("")
-    : `<tr><td colspan="4">No books currently borrowed.</td></tr>`;
+  // Populate summary cards
+  const totalFine = borrowed.reduce((sum, l) => sum + (l.fine || 0), 0);
+  document.getElementById('sumBorrowed').textContent = borrowed.length;
+  document.getElementById('sumReserved').textContent = reserved.length;
+  document.getElementById('sumFine').textContent = '₹' + totalFine;
+  document.getElementById('sumHistory').textContent = history.length;
 
-  document.getElementById("reservedBody").innerHTML = reserved.length
-    ? reserved.map(l => loanRow(l, "reserved")).join("")
-    : `<tr><td colspan="3">No active reservations.</td></tr>`;
+  const emptyBorrowed = `<tr><td colspan="4"><div class="empty-state"><span class="empty-state-icon">📭</span>No books currently borrowed.</div></td></tr>`;
+  const emptyReserved = `<tr><td colspan="3"><div class="empty-state"><span class="empty-state-icon">🔖</span>No active reservations.</div></td></tr>`;
+  const emptyHistory = `<tr><td colspan="3"><div class="empty-state"><span class="empty-state-icon">📚</span>No borrowing history yet.</div></td></tr>`;
 
-  document.getElementById("historyBody").innerHTML = history.length
-    ? history.map(l => loanRow(l, "history")).join("")
-    : `<tr><td colspan="3">No borrowing history yet.</td></tr>`;
+  document.getElementById("borrowedBody").innerHTML = borrowed.length ? borrowed.map(l => loanRow(l, "borrowed")).join("") : emptyBorrowed;
+  document.getElementById("reservedBody").innerHTML = reserved.length ? reserved.map(l => loanRow(l, "reserved")).join("") : emptyReserved;
+  document.getElementById("historyBody").innerHTML = history.length ? history.map(l => loanRow(l, "history")).join("") : emptyHistory;
 
   const notifyList = document.getElementById("notifyList");
   const notifications = [];
-  const overdue = loans.filter(l => l.status === "overdue");
-  overdue.forEach(l => {
-    notifications.push(`<li><strong>"${escapeHtml(l.bookTitle)}"</strong> is overdue. Fine of ₹${l.fine} is accruing.</li>`);
+  loans.filter(l => l.status === "overdue").forEach(l => {
+    notifications.push(`<li>⚠️ <strong>"${escapeHtml(l.bookTitle)}"</strong> is overdue. Fine of ₹${l.fine} is accruing.</li>`);
   });
   reserved.forEach(l => {
-    notifications.push(`<li>Reminder: <strong>"${escapeHtml(l.bookTitle)}"</strong> reservation is ready for pickup.</li>`);
+    notifications.push(`<li>🔔 <strong>"${escapeHtml(l.bookTitle)}"</strong> reservation is ready for pickup.</li>`);
   });
-  notifyList.innerHTML = notifications.length ? notifications.join("") : `<li>No new notifications.</li>`;
+  notifyList.innerHTML = notifications.length ? notifications.join("") : `<li>✅ No new notifications.</li>`;
 
   document.querySelectorAll(".return-btn").forEach(btn => {
     btn.dataset.originalLabel = btn.textContent;
@@ -148,42 +146,33 @@ async function loadPortalData() {
 }
 
 async function returnLoan(loanId, btn) {
-  setBusy(btn, true, "Returning...");
+  setBusy(btn, true, "Returning…");
   try {
     await api("/api/loans/return", { method: "POST", body: JSON.stringify({ loanId }) });
-    showPortalMsg("Book returned successfully.", true);
+    showPortalMsg("✅ Book returned successfully.", true);
     await loadPortalData();
-  } catch (e) {
-    showPortalMsg(e.message, false);
-  } finally {
-    setBusy(btn, false, "Return");
-  }
+  } catch (e) { showPortalMsg(e.message, false); }
+  finally { setBusy(btn, false, "Return"); }
 }
 
 async function payFine(loanId, btn) {
-  setBusy(btn, true, "Paying...");
+  setBusy(btn, true, "Paying…");
   try {
     await api("/api/loans/pay-fine", { method: "POST", body: JSON.stringify({ loanId }) });
-    showPortalMsg("Fine paid successfully.", true);
+    showPortalMsg("✅ Fine paid successfully.", true);
     await loadPortalData();
-  } catch (e) {
-    showPortalMsg(e.message, false);
-  } finally {
-    setBusy(btn, false, "Pay Fine Online");
-  }
+  } catch (e) { showPortalMsg(e.message, false); }
+  finally { setBusy(btn, false, "Pay Fine Online"); }
 }
 
 async function cancelReservation(loanId, btn) {
-  setBusy(btn, true, "Cancelling...");
+  setBusy(btn, true, "Cancelling…");
   try {
     await api("/api/loans/reserve/" + loanId, { method: "DELETE" });
-    showPortalMsg("Reservation cancelled.", true);
+    showPortalMsg("✅ Reservation cancelled.", true);
     await loadPortalData();
-  } catch (e) {
-    showPortalMsg(e.message, false);
-  } finally {
-    setBusy(btn, false, "Cancel");
-  }
+  } catch (e) { showPortalMsg(e.message, false); }
+  finally { setBusy(btn, false, "Cancel"); }
 }
 
 async function enterPortal() {

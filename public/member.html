@@ -10,93 +10,154 @@
 
 <body>
   <header>
-    <h1>Digital Library Management System</h1>
-    <nav>
-      <a href="index.html">Catalog</a>
-      <a href="member.html" class="active">Member Portal</a>
-      <a href="admin.html">Admin Panel</a>
-    </nav>
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">DL</span>
+        <span class="logo-text">Digital Library</span>
+      </a>
+      <nav class="site-nav">
+        <a href="index.html">Catalog</a>
+        <a href="member.html" class="active">Member Portal</a>
+        <a href="admin.html">Admin Panel</a>
+      </nav>
+      <div class="header-actions">
+        <a href="member.html" class="header-link">Log in</a>
+        <button id="themeToggle" class="theme-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <span class="theme-icon">🌙</span>
+        </button>
+      </div>
+    </div>
   </header>
 
   <main>
-    <h2>Member Portal</h2>
+    <div class="page-hero">
+      <h2>Member Portal</h2>
+      <p>View your borrowed books, reservations and borrowing history.</p>
+    </div>
 
     <div id="loginSection" class="login-box">
-      <p style="margin-top:0;">Log in with your name and password. New member? Just fill in the form and submit — it
-        registers you automatically.</p>
+      <span class="login-box-icon">📚</span>
+      <h3>Welcome back</h3>
+      <p>Log in to your account. New here? Register with any name and password.</p>
       <div class="controls">
         <input type="text" id="loginName" placeholder="Your name">
         <input type="password" id="loginPassword" placeholder="Password">
       </div>
-      <button id="loginBtn">Login</button>
-      <button id="registerBtn" class="secondary">Register</button>
+      <div class="btn-row">
+        <button id="loginBtn">Log in</button>
+        <button id="registerBtn" class="secondary">Register</button>
+      </div>
       <div id="authMsg" class="msg"></div>
-      <p class="note">Log in with a member account stored in your MongoDB database.</p>
+      <p class="note" style="margin-top:12px;">Accounts are stored in your MongoDB database.</p>
     </div>
 
     <div id="portalSection" style="display:none;">
       <div class="user-info">
-        Welcome, <strong id="memberNameLabel"></strong>
+        👋 Welcome, <strong id="memberNameLabel"></strong>
         <button id="logoutBtn" class="secondary">Log out</button>
+      </div>
+
+      <!-- Member summary cards — populated by JS -->
+      <div class="member-summary" id="memberSummary">
+        <div class="member-stat">
+          <span class="member-stat-num" id="sumBorrowed">—</span>
+          <span class="member-stat-label">📖 Borrowed</span>
+        </div>
+        <div class="member-stat">
+          <span class="member-stat-num" id="sumReserved">—</span>
+          <span class="member-stat-label">🔖 Reserved</span>
+        </div>
+        <div class="member-stat">
+          <span class="member-stat-num" id="sumFine">₹0</span>
+          <span class="member-stat-label">💳 Fine Due</span>
+        </div>
+        <div class="member-stat">
+          <span class="member-stat-num" id="sumHistory">—</span>
+          <span class="member-stat-label">📚 Total Read</span>
+        </div>
       </div>
 
       <div id="portalActionMsg" class="msg"></div>
 
-      <h3>Notifications</h3>
-      <ul class="notifyList" id="notifyList"></ul>
+      <div class="section-card">
+        <h3>🔔 Notifications</h3>
+        <ul class="notifyList" id="notifyList"></ul>
+      </div>
 
-      <h3>My Borrowed Books</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Due Date</th>
-            <th>Fine</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="borrowedBody">
-          <tr>
-            <td colspan="4">Loading…</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="section-card">
+        <h3>📖 My Borrowed Books</h3>
+        <div class="table-wrap" style="box-shadow:none;border:none;margin-bottom:0;">
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Due Date</th>
+                <th>Fine</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="borrowedBody">
+              <tr>
+                <td colspan="4">
+                  <div class="empty-state"><span class="empty-state-icon">⏳</span>Loading…</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-      <h3>My Reservations</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="reservedBody">
-          <tr>
-            <td colspan="3">Loading…</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="section-card">
+        <h3>🔖 My Reservations</h3>
+        <div class="table-wrap" style="box-shadow:none;border:none;margin-bottom:0;">
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="reservedBody">
+              <tr>
+                <td colspan="3">
+                  <div class="empty-state"><span class="empty-state-icon">⏳</span>Loading…</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-      <h3>Borrowing History</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Borrowed On</th>
-            <th>Returned On</th>
-          </tr>
-        </thead>
-        <tbody id="historyBody">
-          <tr>
-            <td colspan="3">Loading…</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="section-card">
+        <h3>📚 Borrowing History</h3>
+        <div class="table-wrap" style="box-shadow:none;border:none;margin-bottom:0;">
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Borrowed On</th>
+                <th>Returned On</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody">
+              <tr>
+                <td colspan="3">
+                  <div class="empty-state"><span class="empty-state-icon">⏳</span>Loading…</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   </main>
 
+  <footer>Digital Library Management System &nbsp;·&nbsp; Built with Node.js, Express &amp; MongoDB</footer>
+
   <script src="member.js"></script>
+  <script src="theme.js"></script>
 </body>
 
 </html>
