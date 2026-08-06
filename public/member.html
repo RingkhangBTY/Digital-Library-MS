@@ -6,9 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Digital Library Management System - Member Portal</title>
   <link rel="stylesheet" href="style.css">
+  <script>
+    if (localStorage.getItem('dlms-theme') !== 'light') {
+      document.documentElement.classList.add('dark');
+    }
+  </script>
 </head>
 
-<body>
+<body class="dark">
   <header>
     <div class="header-inner">
       <a href="index.html" class="logo">
@@ -27,6 +32,7 @@
         </button>
       </div>
     </div>
+
   </header>
 
   <main>
@@ -36,7 +42,7 @@
     </div>
 
     <div id="loginSection" class="login-box">
-      <span class="login-box-icon">📚</span>
+      <span class="login-box-icon"></span>
       <h3>Welcome back</h3>
       <p>Log in to your account or create a new user account.</p>
       <div id="authMsg" class="msg" style="display:none;"></div>

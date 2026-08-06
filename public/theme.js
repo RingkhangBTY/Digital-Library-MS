@@ -19,27 +19,34 @@
   }
 })();
 
-// Shared theme toggle functionality
+// Shared theme toggle functionality (Defaults to Dark Mode)
 (function() {
   const toggle = document.getElementById('themeToggle');
-  if (!toggle) return;
-
   const saved = localStorage.getItem('dlms-theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const isDark = saved === 'dark' || (!saved && prefersDark);
+  // Default to Dark Mode in every circumstance unless user explicitly chose 'light'
+  const isDark = saved ? saved === 'dark' : true;
 
   if (isDark) {
     document.body.classList.add('dark');
-    updateThemeIcon(true);
+    document.documentElement.classList.add('dark');
+  } else {
+    document.body.classList.remove('dark');
+    document.documentElement.classList.remove('dark');
   }
 
-  toggle.addEventListener('click', () => {
-    const isDarkMode = document.body.classList.toggle('dark');
-    updateThemeIcon(isDarkMode);
-    localStorage.setItem('dlms-theme', isDarkMode ? 'dark' : 'light');
-  });
+  if (toggle) {
+    updateThemeIcon(isDark);
+
+    toggle.addEventListener('click', () => {
+      const isDarkMode = document.body.classList.toggle('dark');
+      document.documentElement.classList.toggle('dark', isDarkMode);
+      updateThemeIcon(isDarkMode);
+      localStorage.setItem('dlms-theme', isDarkMode ? 'dark' : 'light');
+    });
+  }
 
   function updateThemeIcon(isDark) {
+    if (!toggle) return;
     const icon = toggle.querySelector('.theme-icon');
     if (icon) {
       icon.textContent = isDark ? '☀️' : '🌙';

@@ -584,7 +584,10 @@ document.getElementById("addBookForm").addEventListener("submit", async (e) => {
   const author = document.getElementById("newAuthor").value.trim();
   const genre = document.getElementById("newGenre").value.trim();
   const branch = document.getElementById("newBranch").value.trim();
-  const format = document.getElementById("newFormat").value.trim();
+  
+  const selectedFormats = Array.from(document.querySelectorAll('input[name="bookFormat"]:checked')).map(cb => cb.value);
+  const formatStr = selectedFormats.length ? selectedFormats.join(", ") : "Physical";
+  
   const totalCopies = document.getElementById("newCopies").value;
   const editingBookId = document.getElementById("editingBookId").value;
 
@@ -595,7 +598,7 @@ document.getElementById("addBookForm").addEventListener("submit", async (e) => {
     author,
     genre,
     branch,
-    format: format || "Physical",
+    format: formatStr,
     totalCopies: Number(totalCopies || 1)
   };
 
@@ -649,15 +652,40 @@ async function editBook(bookId) {
     document.getElementById("newAuthor").value = book.author || "";
     document.getElementById("newGenre").value = book.genre || "";
     document.getElementById("newBranch").value = book.branch || "";
-    document.getElementById("newFormat").value = book.format || "Physical";
+    
+    const activeFormats = (book.format || "Physical").split(",").map(s => s.trim());
+    document.querySelectorAll('input[name="bookFormat"]').forEach(cb => {
+      cb.checked = activeFormats.includes(cb.value);
+    });
+
     document.getElementById("newCopies").value = book.totalCopies || 1;
     document.getElementById("bookSubmitBtn").textContent = "Save Changes";
     document.getElementById("bookFormTitle").textContent = "Edit Book";
     document.getElementById("cancelEditBtn").style.display = "inline-block";
+
+    // Switch to Add/Edit Book tab in sidebar
+    const addTabBtn = document.querySelector('.sidebar-btn[data-target="admin-sec-add-book"]');
+    if (addTabBtn) addTabBtn.click();
+
     document.getElementById("newTitle").focus();
   } catch (e) {
     showMsg("addBookMsg", e.message, false);
   }
+}
+
+function resetBookForm() {
+  document.getElementById("editingBookId").value = "";
+  document.getElementById("newTitle").value = "";
+  document.getElementById("newAuthor").value = "";
+  document.getElementById("newGenre").value = "";
+  document.getElementById("newBranch").value = "";
+  document.getElementById("newCopies").value = "1";
+  document.querySelectorAll('input[name="bookFormat"]').forEach(cb => {
+    cb.checked = (cb.value === "Physical");
+  });
+  document.getElementById("bookSubmitBtn").textContent = "Add Book";
+  document.getElementById("bookFormTitle").textContent = "Add New Book";
+  document.getElementById("cancelEditBtn").style.display = "none";
 }
 
 async function deleteBook(bookId) {

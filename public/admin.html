@@ -6,9 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Digital Library Management System - Admin Panel</title>
   <link rel="stylesheet" href="style.css">
+  <script>
+    if (localStorage.getItem('dlms-theme') !== 'light') {
+      document.documentElement.classList.add('dark');
+    }
+  </script>
 </head>
 
-<body>
+<body class="dark">
   <header>
     <div class="header-inner">
       <a href="index.html" class="logo">
@@ -33,17 +38,23 @@
     <div class="page-hero">
       <h2>Admin Panel</h2>
       <p>Manage books, loans, members and analytics from one place.</p>
-      <p>Testing Login: Name: Head Librarian & Password: admin123</p>
+      <div
+        style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 14px;background:rgba(124, 58, 237, 0.18);border:1px solid rgba(167, 139, 250, 0.5);border-radius:20px;font-size:0.85rem;color:#c4b5fd;">
+        <strong>Testing Login:</strong> Name: <code
+          style="color:#fff;background:rgba(0,0,0,0.3);padding:1px 6px;border-radius:4px;">Head Librarian</code>
+        &nbsp;|&nbsp; Password: <code
+          style="color:#fff;background:rgba(0,0,0,0.3);padding:1px 6px;border-radius:4px;">admin123</code>
+      </div>
     </div>
 
     <div id="loginSection" class="login-box">
-      <p style="margin-top:0;">Librarian login required.</p>
+      <p style="margin-top:0;font-weight:600;">Librarian login required.</p>
+
       <div class="controls">
         <input type="text" id="loginName" placeholder="Name">
-        <input type="password" id="loginPassword" placeholder="Password"> <br>
-        <!-- <p>dqdqwf </p> -->
+        <input type="password" id="loginPassword" placeholder="Password">
       </div>
-      <button id="loginBtn">Login</button>
+      <button id="loginBtn" style="width:100%;margin-top:8px;">Login</button>
       <div id="authMsg" class="msg"></div>
     </div>
 
@@ -65,6 +76,9 @@
             </button>
             <button type="button" class="sidebar-btn" data-target="admin-sec-inventory">
               <span class="nav-icon">📚</span> Book Inventory
+            </button>
+            <button type="button" class="sidebar-btn" data-target="admin-sec-add-book">
+              <span class="nav-icon">➕</span> Add New Book
             </button>
             <button type="button" class="sidebar-btn" data-target="admin-sec-reservations">
               <span class="nav-icon">🔖</span> Reservations
@@ -102,7 +116,9 @@
                 </tr>
               </thead>
               <tbody id="mostBorrowedBody">
-                <tr><td colspan="2">Loading…</td></tr>
+                <tr>
+                  <td colspan="2">Loading…</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -111,7 +127,8 @@
           <div id="admin-sec-inventory" class="admin-tab-content">
             <h3>All Books (Inventory)</h3>
             <div class="controls" style="margin-bottom:10px;">
-              <input type="text" id="inventorySearch" placeholder="🔍  Search by title, author or genre…" style="flex:1;min-width:220px;">
+              <input type="text" id="inventorySearch" placeholder="🔍  Search by title, author or genre…"
+                style="flex:1;min-width:220px;">
               <select id="inventoryStatusFilter">
                 <option value="">All Status</option>
                 <option value="available">Available</option>
@@ -130,7 +147,9 @@
                 </tr>
               </thead>
               <tbody id="inventoryBody">
-                <tr><td colspan="6">Loading…</td></tr>
+                <tr>
+                  <td colspan="6">Loading…</td>
+                </tr>
               </tbody>
             </table>
 
@@ -141,26 +160,61 @@
               </div>
               <span id="invShowMoreCount" class="show-more-count">Showing 10 books</span>
             </div>
+          </div>
 
-            <h3 id="bookFormTitle" style="margin-top: 36px;">Add New Book</h3>
+          <!-- Section: Add / Edit Book (NEW SIDEBAR TAB) -->
+          <div id="admin-sec-add-book" class="admin-tab-content">
+            <h3 id="bookFormTitle">Add New Book</h3>
+            <p class="section-desc">Add a new book to the library catalog or edit an existing book's information.</p>
             <div id="addBookMsg" class="msg"></div>
-            <form class="inline-form" id="addBookForm">
+            <form class="inline-form" id="addBookForm" style="flex-wrap:wrap;gap:12px;max-width:640px;margin-top:16px;">
               <input type="hidden" id="editingBookId">
-              <input type="text" id="newTitle" placeholder="Title" required>
-              <input type="text" id="newAuthor" placeholder="Author" required>
-              <input type="text" id="newGenre" placeholder="Genre">
-              <input type="text" id="newBranch" placeholder="Branch">
-              <input type="text" id="newFormat" placeholder="Format" value="Physical">
-              <input type="number" id="newCopies" placeholder="Total copies" min="1" value="1" style="width:110px;">
-              <button type="submit" id="bookSubmitBtn">Add Book</button>
-              <button type="button" id="cancelEditBtn" class="secondary" style="display:none;">Cancel</button>
+              <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:240px;">
+                <label style="font-size:0.8rem;font-weight:600;color:var(--text-muted);">Book Title *</label>
+                <input type="text" id="newTitle" placeholder="e.g. The Hobbit" required>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:240px;">
+                <label style="font-size:0.8rem;font-weight:600;color:var(--text-muted);">Author *</label>
+                <input type="text" id="newAuthor" placeholder="e.g. J.R.R. Tolkien" required>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:180px;">
+                <label style="font-size:0.8rem;font-weight:600;color:var(--text-muted);">Genre</label>
+                <input type="text" id="newGenre" placeholder="e.g. Fantasy">
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:180px;">
+                <label style="font-size:0.8rem;font-weight:600;color:var(--text-muted);">Branch</label>
+                <input type="text" id="newBranch" placeholder="e.g. Main Library">
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;width:100%;margin:4px 0;">
+                <label style="font-size:0.8rem;font-weight:600;color:var(--text-muted);">Book Formats / Types (Select
+                  all that apply) *</label>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                  <label
+                    style="display:inline-flex;align-items:center;gap:6px;font-size:0.85rem;cursor:pointer;background:var(--bg-card);padding:6px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);user-select:none;">
+                    <input type="checkbox" name="bookFormat" value="Physical" checked>Physical
+                  </label>
+                  <label
+                    style="display:inline-flex;align-items:center;gap:6px;font-size:0.85rem;cursor:pointer;background:var(--bg-card);padding:6px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);user-select:none;">
+                    <input type="checkbox" name="bookFormat" value="E-Book">E-Book
+                  </label>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px;width:120px;">
+                <label style="font-size:0.8rem;font-weight:600;color:var(--text-muted);">Total Copies</label>
+                <input type="number" id="newCopies" placeholder="Copies" min="1" value="1">
+              </div>
+              <div style="display:flex;gap:8px;width:100%;margin-top:12px;">
+                <button type="submit" id="bookSubmitBtn">Add Book</button>
+                <button type="button" id="cancelEditBtn" class="secondary" style="display:none;">Cancel</button>
+              </div>
             </form>
           </div>
 
           <!-- Section: Member Reservations (NEW) -->
           <div id="admin-sec-reservations" class="admin-tab-content">
             <h3>Member Reservations</h3>
-            <p class="section-desc">View books reserved by members. Issue reserved books directly to members when copies become available.</p>
+            <p class="section-desc">View books reserved by members. Issue reserved books directly to members when copies
+              become available.</p>
             <div id="reservationAdminMsg" class="msg"></div>
             <table>
               <thead>
@@ -173,7 +227,9 @@
                 </tr>
               </thead>
               <tbody id="reservationsAdminBody">
-                <tr><td colspan="5">Loading reservations…</td></tr>
+                <tr>
+                  <td colspan="5">Loading reservations…</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -181,9 +237,11 @@
           <!-- Section: Members -->
           <div id="admin-sec-members" class="admin-tab-content">
             <h3>All Members</h3>
-            <p class="section-desc">Search and manage member accounts, view active loans, reservations, and complete borrowing history.</p>
+            <p class="section-desc">Search and manage member accounts, view active loans, reservations, and complete
+              borrowing history.</p>
             <div class="controls" style="margin-bottom:12px;">
-              <input type="text" id="memberSearch" placeholder="🔍  Search members by name or email…" style="flex:1;min-width:240px;">
+              <input type="text" id="memberSearch" placeholder="🔍  Search members by name or email…"
+                style="flex:1;min-width:240px;">
             </div>
             <table>
               <thead>
@@ -197,7 +255,9 @@
                 </tr>
               </thead>
               <tbody id="membersBody">
-                <tr><td colspan="6">Loading members…</td></tr>
+                <tr>
+                  <td colspan="6">Loading members…</td>
+                </tr>
               </tbody>
             </table>
 
@@ -241,7 +301,9 @@
                 </tr>
               </thead>
               <tbody id="paymentsBody">
-                <tr><td colspan="4">Loading…</td></tr>
+                <tr>
+                  <td colspan="4">Loading…</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -259,7 +321,9 @@
                 </tr>
               </thead>
               <tbody id="auditBody">
-                <tr><td colspan="4">Loading…</td></tr>
+                <tr>
+                  <td colspan="4">Loading…</td>
+                </tr>
               </tbody>
             </table>
           </div>
