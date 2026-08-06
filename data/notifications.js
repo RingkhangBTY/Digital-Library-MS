@@ -20,4 +20,13 @@ async function getForMember(memberId, limit = 50) {
   return docs;
 }
 
-module.exports = { addNotification, getForMember };
+async function markAllReadForMember(memberId) {
+  const db = await getDb();
+  const result = await db.collection("notifications").updateMany(
+    { memberId: Number(memberId), read: false },
+    { $set: { read: true } }
+  );
+  return result.modifiedCount;
+}
+
+module.exports = { addNotification, getForMember, markAllReadForMember };

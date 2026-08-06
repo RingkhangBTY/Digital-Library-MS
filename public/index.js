@@ -42,7 +42,47 @@ function rowHtml(book) {
   `;
 }
 
-async function loadBooks() {
+let visibleCount = 10;
+let allFetchedBooks = [];
+
+function renderTable() {
+  const tbody = document.getElementById("bookTableBody");
+  const wrapper = document.getElementById("showMoreWrapper");
+  const moreBtn = document.getElementById("showMoreBtn");
+  const lessBtn = document.getElementById("showLessBtn");
+  const countSpan = document.getElementById("showMoreCount");
+
+  if (!allFetchedBooks.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><span class="empty-state-icon">📭</span>No books match your search.<br><small>Try a different title, author or filter.</small></div></td></tr>`;
+    if (wrapper) wrapper.style.display = "none";
+    return;
+  }
+
+  const displayed = allFetchedBooks.slice(0, visibleCount);
+  tbody.innerHTML = displayed.map(rowHtml).join("");
+
+  document.querySelectorAll(".reserve-btn").forEach(btnEl => {
+    btnEl.addEventListener("click", () => reserveBook(btnEl.dataset.bookId, btnEl));
+  });
+
+  if (wrapper && countSpan) {
+    wrapper.style.display = "flex";
+    countSpan.textContent = `Showing ${displayed.length} of ${allFetchedBooks.length} books`;
+
+    if (moreBtn) {
+      moreBtn.style.display = visibleCount < allFetchedBooks.length ? "inline-flex" : "none";
+    }
+    if (lessBtn) {
+      lessBtn.style.display = visibleCount > 10 ? "inline-flex" : "none";
+    }
+  }
+}
+
+async function loadBooks(resetPagination = true) {
+  if (resetPagination) {
+    visibleCount = 10;
+  }
+
   const q = document.getElementById("searchInput").value.trim();
   const genre = document.getElementById("genreFilter").value;
   const status = document.getElementById("statusFilter").value;
@@ -53,28 +93,19 @@ async function loadBooks() {
   if (status) params.set("status", status);
 
   const data = await api("/api/books?" + params.toString());
-  const tbody = document.getElementById("bookTableBody");
-
-  if (!data.books.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><span class="empty-state-icon">📭</span>No books match your search.<br><small>Try a different title, author or filter.</small></div></td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = data.books.map(rowHtml).join("");
+  allFetchedBooks = data.books || [];
 
   // Update info strip
-  const total = data.books.length;
-  const avail = data.books.filter(b => b.availableCopies > 0).length;
+  const total = allFetchedBooks.length;
+  const avail = allFetchedBooks.filter(b => b.availableCopies > 0).length;
   const issued = total - avail;
-  const genres = new Set(data.books.map(b => b.genre).filter(Boolean)).size;
+  const genres = new Set(allFetchedBooks.map(b => b.genre).filter(Boolean)).size;
   document.getElementById('stripTotal').textContent = total;
   document.getElementById('stripAvailable').textContent = avail;
   document.getElementById('stripIssued').textContent = issued;
   document.getElementById('stripGenres').textContent = genres || '—';
 
-  document.querySelectorAll(".reserve-btn").forEach(btn => {
-    btn.addEventListener("click", () => reserveBook(btn.dataset.bookId, btn));
-  });
+  renderTable();
 }
 
 function showMsg(text, ok) {
@@ -91,7 +122,7 @@ async function reserveBook(bookId, btn) {
   try {
     await api("/api/loans/reserve", { method: "POST", body: JSON.stringify({ bookId }) });
     showMsg("✅ Reserved! Check My Reservations in the Member Portal.", true);
-    await loadBooks();
+    await loadBooks(false);
   } catch (e) {
     showMsg(e.message.includes("log in") ? "🔒 Please log in on the Member Portal to reserve books." : e.message, false);
   } finally {
@@ -102,9 +133,24 @@ async function reserveBook(bookId, btn) {
 
 document.getElementById("searchInput").addEventListener("input", () => {
   clearTimeout(window._t);
-  window._t = setTimeout(loadBooks, 250);
+  window._t = setTimeout(() => loadBooks(true), 250);
 });
-document.getElementById("genreFilter").addEventListener("change", loadBooks);
-document.getElementById("statusFilter").addEventListener("change", loadBooks);
+document.getElementById("genreFilter").addEventListener("change", () => loadBooks(true));
+document.getElementById("statusFilter").addEventListener("change", () => loadBooks(true));
 
-loadBooks();
+const showMoreBtn = document.getElementById("showMoreBtn");
+if (showMoreBtn) {
+  showMoreBtn.addEventListener("click", () => {
+    visibleCount += 5;
+    renderTable();
+  });
+}
+const showLessBtn = document.getElementById("showLessBtn");
+if (showLessBtn) {
+  showLessBtn.addEventListener("click", () => {
+    visibleCount = Math.max(10, visibleCount - 5);
+    renderTable();
+  });
+}
+
+loadBooks(true);

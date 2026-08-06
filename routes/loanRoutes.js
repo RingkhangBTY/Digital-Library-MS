@@ -91,9 +91,10 @@ router.post("/pay-fine", requireMember, asyncHandler(async (req, res) => {
   if (loan.memberId !== req.session.member.id) {
     return res.status(403).json({ error: "You can only pay your own fines." });
   }
+  const amountPaid = loan.fine || 0;
   const updated = await loans.payFine(loanId);
   // audit payment
-  await audit.log("pay-fine", req.session.member ? req.session.member.id : null, "member", "loan", loanId, { amount: updated.fine === 0 ? null : updated.fine });
+  await audit.log("pay-fine", req.session.member ? req.session.member.id : null, "member", "loan", loanId, { amount: amountPaid });
   res.json({ loan: await enrich(updated), message: "Fine paid." });
 }));
 
@@ -162,6 +163,13 @@ router.get("/payments", requireLibrarian, asyncHandler(async (req, res) => {
   const db = await (require("../data/db").getDb)();
   const payments = await db.collection("payments").find({}).sort({ paidAt: -1 }).limit(200).toArray();
   res.json({ payments });
+}));
+
+// Librarian: list recent audit logs
+router.get("/audit-logs", requireLibrarian, asyncHandler(async (req, res) => {
+  const db = await (require("../data/db").getDb)();
+  const logs = await db.collection("auditLogs").find({}).sort({ createdAt: -1 }).limit(300).toArray();
+  res.json({ logs });
 }));
 
 // Trigger overdue/fine recalculation (maintenance)

@@ -71,13 +71,25 @@ async function loadDashboard() {
     : `<tr><td colspan="2">No borrowing data yet.</td></tr>`;
 }
 
+let _invVisibleCount = 10;
+let _currentFilteredBooks = [];
+
 function renderInventory(books) {
+  _currentFilteredBooks = books || [];
   const tbody = document.getElementById("inventoryBody");
+  const wrapper = document.getElementById("invShowMoreWrapper");
+  const moreBtn = document.getElementById("invShowMoreBtn");
+  const lessBtn = document.getElementById("invShowLessBtn");
+  const countSpan = document.getElementById("invShowMoreCount");
+
   if (!books.length) {
     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#888;padding:20px;">No books match your search.</td></tr>`;
+    if (wrapper) wrapper.style.display = "none";
     return;
   }
-  tbody.innerHTML = books.map(b => {
+
+  const displayed = books.slice(0, _invVisibleCount);
+  tbody.innerHTML = displayed.map(b => {
     const available = b.availableCopies > 0;
     return `
       <tr>
@@ -99,9 +111,22 @@ function renderInventory(books) {
   document.querySelectorAll(".delete-book-btn").forEach(btn => {
     btn.addEventListener("click", () => deleteBook(btn.dataset.bookId));
   });
+
+  if (wrapper && countSpan) {
+    wrapper.style.display = "flex";
+    countSpan.textContent = `Showing ${displayed.length} of ${books.length} books`;
+
+    if (moreBtn) {
+      moreBtn.style.display = _invVisibleCount < books.length ? "inline-flex" : "none";
+    }
+    if (lessBtn) {
+      lessBtn.style.display = _invVisibleCount > 10 ? "inline-flex" : "none";
+    }
+  }
 }
 
-function filterInventory() {
+function filterInventory(resetCount = true) {
+  if (resetCount) _invVisibleCount = 10;
   const q = (document.getElementById("inventorySearch").value || "").toLowerCase().trim();
   const status = (document.getElementById("inventoryStatusFilter").value || "").toLowerCase();
   const filtered = _allBooks.filter(b => {
@@ -145,6 +170,43 @@ async function loadMembers() {
     .join("");
 }
 
+function fmtDate(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleString();
+}
+
+async function loadPayments() {
+  const data = await api("/api/loans/payments");
+  const tbody = document.getElementById("paymentsBody");
+  const rows = data.payments || [];
+  tbody.innerHTML = rows.length
+    ? rows.map(p => `
+      <tr>
+        <td data-label="Loan ID">${p.loanId ?? "—"}</td>
+        <td data-label="Member ID">${p.memberId ?? "—"}</td>
+        <td data-label="Amount">₹${p.amount ?? 0}</td>
+        <td data-label="Paid At">${escapeHtml(fmtDate(p.paidAt))}</td>
+      </tr>`).join("")
+    : `<tr><td colspan="4">No payments yet.</td></tr>`;
+}
+
+async function loadAuditLogs() {
+  const data = await api("/api/loans/audit-logs");
+  const tbody = document.getElementById("auditBody");
+  const rows = data.logs || [];
+  tbody.innerHTML = rows.length
+    ? rows.map(l => `
+      <tr>
+        <td data-label="When">${escapeHtml(fmtDate(l.createdAt))}</td>
+        <td data-label="Action">${escapeHtml(l.action || "—")}</td>
+        <td data-label="Actor">${escapeHtml(`${l.userType || "system"}:${l.userId ?? "—"}`)}</td>
+        <td data-label="Target">${escapeHtml(`${l.targetType || "—"}:${l.targetId ?? "—"}`)}</td>
+      </tr>`).join("")
+    : `<tr><td colspan="4">No audit entries yet.</td></tr>`;
+}
+
 async function loadReturnableLoans() {
   const data = await api("/api/loans");
   const active = data.loans.filter(l => l.status === "borrowed" || l.status === "overdue");
@@ -155,7 +217,14 @@ async function loadReturnableLoans() {
 }
 
 async function refreshAll() {
-  await Promise.all([loadDashboard(), loadInventory(), loadMembers(), loadReturnableLoans()]);
+  await Promise.all([
+    loadDashboard(),
+    loadInventory(),
+    loadMembers(),
+    loadReturnableLoans(),
+    loadPayments(),
+    loadAuditLogs()
+  ]);
 }
 
 document.getElementById("addBookForm").addEventListener("submit", async (e) => {
@@ -254,9 +323,25 @@ async function deleteBook(bookId) {
 
 document.getElementById("inventorySearch").addEventListener("input", () => {
   clearTimeout(window._invT);
-  window._invT = setTimeout(filterInventory, 200);
+  window._invT = setTimeout(() => filterInventory(true), 200);
 });
-document.getElementById("inventoryStatusFilter").addEventListener("change", filterInventory);
+document.getElementById("inventoryStatusFilter").addEventListener("change", () => filterInventory(true));
+
+const invShowMoreBtn = document.getElementById("invShowMoreBtn");
+if (invShowMoreBtn) {
+  invShowMoreBtn.addEventListener("click", () => {
+    _invVisibleCount += 5;
+    renderInventory(_currentFilteredBooks);
+  });
+}
+
+const invShowLessBtn = document.getElementById("invShowLessBtn");
+if (invShowLessBtn) {
+  invShowLessBtn.addEventListener("click", () => {
+    _invVisibleCount = Math.max(10, _invVisibleCount - 5);
+    renderInventory(_currentFilteredBooks);
+  });
+}
 
 document.getElementById("loginBtn").addEventListener("click", login);
 document.getElementById("logoutBtn").addEventListener("click", logout);

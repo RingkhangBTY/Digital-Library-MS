@@ -10,6 +10,9 @@ router.post("/member/register", asyncHandler(async (req, res) => {
   if (!name || !password) {
     return res.status(400).json({ error: "Name and password are required." });
   }
+  if (!email || !email.includes("@")) {
+    return res.status(400).json({ error: "A valid email address is required." });
+  }
   if (password.length < 4) {
     return res.status(400).json({ error: "Password must be at least 4 characters." });
   }

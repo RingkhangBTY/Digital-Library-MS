@@ -40,7 +40,8 @@
       <p style="margin-top:0;">Librarian login required.</p>
       <div class="controls">
         <input type="text" id="loginName" placeholder="Name">
-        <input type="password" id="loginPassword" placeholder="Password">
+        <input type="password" id="loginPassword" placeholder="Password"> <br>
+        <!-- <p>dqdqwf </p> -->
       </div>
       <button id="loginBtn">Login</button>
       <div id="authMsg" class="msg"></div>
@@ -113,6 +114,40 @@
         </tbody>
       </table>
 
+      <h3>Recent Fine Payments</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Loan ID</th>
+            <th>Member ID</th>
+            <th>Amount</th>
+            <th>Paid At</th>
+          </tr>
+        </thead>
+        <tbody id="paymentsBody">
+          <tr>
+            <td colspan="4">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Audit Log</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>When</th>
+            <th>Action</th>
+            <th>Actor</th>
+            <th>Target</th>
+          </tr>
+        </thead>
+        <tbody id="auditBody">
+          <tr>
+            <td colspan="4">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+
       <h3>All Books (Inventory)</h3>
       <div class="controls" style="margin-bottom:10px;">
         <input type="text" id="inventorySearch" placeholder="🔍  Search by title, author or genre…"
@@ -140,8 +175,18 @@
           </tr>
         </tbody>
       </table>
+
+      <div id="invShowMoreWrapper" class="show-more-wrapper" style="display:none;">
+        <div class="show-btn-group">
+          <button id="invShowMoreBtn" class="show-more-btn">Show 5 More</button>
+          <button id="invShowLessBtn" class="show-less-btn" style="display:none;">Show Less</button>
+        </div>
+        <span id="invShowMoreCount" class="show-more-count">Showing 10 books</span>
+      </div>
     </div>
   </main>
+
+  <footer>Digital Library Management System &nbsp;·&nbsp; Built with Node.js, Express &amp; MongoDB</footer>
 
   <script src="admin.js"></script>
   <script src="theme.js"></script>

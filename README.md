@@ -74,6 +74,15 @@ To run daily recalculation of overdue statuses and fines, configure a scheduled 
 
 If you do not wish to use MAINTENANCE_TOKEN, the endpoint can also be triggered by an authenticated librarian session via POST /api/loans/recalculate.
 
+## Notifications, payments, and audit APIs
+
+- Member notifications (session required):
+  - `GET /api/notifications/mine`
+  - `POST /api/notifications/mine/read-all`
+- Admin/librarian operational APIs:
+  - `GET /api/loans/payments` (recent fine payment history)
+  - `GET /api/loans/audit-logs` (recent audit entries)
+
 ## Notes for next steps
 
 - Passwords are hashed with a salted SHA-256 (Node's built-in `crypto`); for production, prefer `bcrypt` or `argon2`.

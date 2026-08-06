@@ -2,6 +2,17 @@
   "name": "digital-library-ms",
   "version": "1.0.0",
   "description": "Digital Library Management System - Express backend with MongoDB data",
+  "homepage": "https://github.com/RingkhangBTY/Digital-Library-MS#readme",
+  "bugs": {
+    "url": "https://github.com/RingkhangBTY/Digital-Library-MS/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RingkhangBTY/Digital-Library-MS.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -13,6 +24,7 @@
     "express-session": "^1.18.0",
     "mongodb": "^6.18.0"
   },
+  "devDependencies": {},
   "engines": {
     "node": ">=18"
   }

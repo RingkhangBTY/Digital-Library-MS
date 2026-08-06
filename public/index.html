@@ -7,101 +7,188 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <div class="header-inner">
-      <a href="index.html" class="logo">
-        <span class="logo-mark">DL</span>
-        <span class="logo-text">Digital Library</span>
-      </a>
-      <nav class="site-nav">
-        <a href="index.html" class="active">Catalog</a>
-        <a href="member.html">Member Portal</a>
-        <a href="admin.html">Admin Panel</a>
-      </nav>
-      <div class="header-actions">
-        <a href="member.html" class="header-link">Log in</a>
-        <button id="themeToggle" class="theme-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">
-          <span class="theme-icon">🌙</span>
-        </button>
+
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-mark">DL</span>
+      <span class="logo-text">Digital Library</span>
+    </a>
+    <nav class="site-nav">
+      <a href="index.html" class="active">Catalog</a>
+      <a href="member.html">Member Portal</a>
+      <a href="admin.html">Admin Panel</a>
+    </nav>
+    <div class="header-actions">
+      <a href="member.html" class="header-link">Log in</a>
+      <button id="themeToggle" class="theme-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+        <span class="theme-icon">🌙</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ── HERO BANNER ── -->
+  <div class="hero-banner">
+    <div class="hero-banner-bg" style="background-image:url('background.webp');"></div>
+    <div class="hero-banner-overlay"></div>
+    <div class="hero-banner-content">
+      <span class="hero-badge">📚 Digital Library System</span>
+      <h2>Welcome to Digital Library MS</h2>
+      <p>Explore our collection of books, manage reservations,<br>and discover new titles across all genres.</p>
+      <div class="hero-cta-row">
+        <a href="member.html" class="hero-cta-primary">Get Started →</a>
+        <a href="#catalog" class="hero-cta-secondary">Browse Catalog</a>
       </div>
     </div>
-  </header>
+  </div>
 
-  <main>
-    <div class="page-hero">
-      <h2>Book Catalog</h2>
-      <p>Browse, search and reserve books from our collection.</p>
+  <!-- ── QUICK STATS ── -->
+  <div class="info-strip">
+    <div class="info-tile">
+      <span class="info-tile-num" id="stripTotal">—</span>
+      <span class="info-tile-label">Total Books</span>
     </div>
-
-    <!-- Static info strip — populated visually, real data loads via JS in admin -->
-    <div class="info-strip">
-      <div class="info-tile">
-        <span class="info-tile-num" id="stripTotal">—</span>
-        <span class="info-tile-label">Total Books</span>
-      </div>
-      <div class="info-tile">
-        <span class="info-tile-num" id="stripAvailable">—</span>
-        <span class="info-tile-label">Available Now</span>
-      </div>
-      <div class="info-tile">
-        <span class="info-tile-num" id="stripIssued">—</span>
-        <span class="info-tile-label">Currently Issued</span>
-      </div>
-      <div class="info-tile">
-        <span class="info-tile-num" id="stripGenres">—</span>
-        <span class="info-tile-label">Genres</span>
-      </div>
+    <div class="info-tile">
+      <span class="info-tile-num" id="stripAvailable">—</span>
+      <span class="info-tile-label">Available Now</span>
     </div>
-
-    <div class="catalog-controls">
-      <div class="controls">
-        <input type="text" id="searchInput" placeholder="🔍  Search by title or author…">
-        <select id="genreFilter">
-          <option>All Genres</option>
-          <option>Fiction</option>
-          <option>Technology</option>
-          <option>History</option>
-          <option>Self-Help</option>
-          <option>Science</option>
-        </select>
-        <select id="statusFilter">
-          <option>All Status</option>
-          <option>Available</option>
-          <option>Issued</option>
-        </select>
-      </div>
+    <div class="info-tile">
+      <span class="info-tile-num" id="stripIssued">—</span>
+      <span class="info-tile-label">Currently Issued</span>
     </div>
-
-    <div id="reserveMsg" class="msg"></div>
-
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Genre</th>
-            <th>Branch</th>
-            <th>Format</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="bookTableBody">
-          <tr><td colspan="7"><div class="empty-state"><span class="empty-state-icon">⏳</span>Loading catalog…</div></td></tr>
-        </tbody>
-      </table>
+    <div class="info-tile">
+      <span class="info-tile-num" id="stripGenres">—</span>
+      <span class="info-tile-label">Genres</span>
     </div>
+  </div>
 
-    <p class="note">
-      📌 Titles marked <span class="badge">E-Book</span> are available for instant digital access from the Member Portal.
-      Each entry carries a unique QR code for quick circulation-desk checkout. <strong>Reserving requires a member login.</strong>
-    </p>
-  </main>
+  <!-- ── GENRE PILLS ── -->
+  <div class="genre-pills" id="genrePills">
+    <span class="genre-pill"><span class="genre-pill-icon">📖</span>Fiction</span>
+    <span class="genre-pill"><span class="genre-pill-icon">💻</span>Technology</span>
+    <span class="genre-pill"><span class="genre-pill-icon">🕰️</span>History</span>
+    <span class="genre-pill"><span class="genre-pill-icon">🌱</span>Self-Help</span>
+    <span class="genre-pill"><span class="genre-pill-icon">🔭</span>Science</span>
+  </div>
 
-  <footer>Digital Library Management System &nbsp;·&nbsp; Built with Node.js, Express &amp; MongoDB</footer>
+  <!-- ── FEATURED BOOKS ── -->
+  <p class="section-label">Featured in the collection</p>
+  <div class="book-shelf" id="featuredShelf">
+    <!-- populated by JS below -->
+  </div>
 
-  <script src="index.js"></script>
-  <script src="theme.js"></script>
+  <!-- ── HOW IT WORKS ── -->
+  <p class="section-label">How it works</p>
+  <div class="how-grid">
+    <div class="how-card">
+      <span class="how-icon">🔍</span>
+      <div class="how-title">Browse freely</div>
+      <div class="how-desc">Anyone can search and filter the full catalog — no account needed to explore.</div>
+    </div>
+    <div class="how-card">
+      <span class="how-icon">🔑</span>
+      <div class="how-title">Sign in to borrow</div>
+      <div class="how-desc">Create a free account on the Member Portal to reserve and borrow books.</div>
+    </div>
+    <div class="how-card">
+      <span class="how-icon">📅</span>
+      <div class="how-title">14-day loans</div>
+      <div class="how-desc">Borrow for up to 14 days. Fines accrue on overdue titles — pay online anytime.</div>
+    </div>
+    <div class="how-card">
+      <span class="how-icon">🔖</span>
+      <div class="how-title">Reserve when busy</div>
+      <div class="how-desc">All copies out? Reserve your spot — you'll be notified when it's ready for pickup.</div>
+    </div>
+  </div>
+
+  <!-- ── CATALOG SEARCH ── -->
+  <div id="catalog"></div>
+  <div class="catalog-controls">
+    <div class="controls">
+      <input type="text" id="searchInput" placeholder="🔍  Search by title or author…">
+      <select id="genreFilter">
+        <option>All Genres</option>
+        <option>Fiction</option>
+        <option>Technology</option>
+        <option>History</option>
+        <option>Self-Help</option>
+        <option>Science</option>
+      </select>
+      <select id="statusFilter">
+        <option>All Status</option>
+        <option>Available</option>
+        <option>Issued</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="reserveMsg" class="msg"></div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Genre</th>
+          <th>Branch</th>
+          <th>Format</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="bookTableBody">
+        <tr><td colspan="7"><div class="empty-state"><span class="empty-state-icon">⏳</span>Loading catalog…</div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="showMoreWrapper" class="show-more-wrapper" style="display:none;">
+    <div class="show-btn-group">
+      <button id="showMoreBtn" class="show-more-btn">Show 5 More</button>
+      <button id="showLessBtn" class="show-less-btn" style="display:none;">Show Less</button>
+    </div>
+    <span id="showMoreCount" class="show-more-count">Showing 10 books</span>
+  </div>
+
+  <p class="note">
+    📌 Titles marked <span class="badge">E-Book</span> are available for digital access from the Member Portal.
+    Each entry carries a unique QR code for quick checkout. <strong>Reserving requires a member login.</strong>
+  </p>
+
+</main>
+
+<footer>Digital Library Management System &nbsp;·&nbsp; Built with Node.js &amp; Express</footer>
+
+<script src="index.js"></script>
+<script src="theme.js"></script>
+<script>
+  // Featured shelf — show first 6 available books
+  (async function buildShelf() {
+    try {
+      const res = await fetch('/api/books?status=Available');
+      const data = await res.json();
+      const books = (data.books || []).slice(0, 6);
+      const spineColors = ['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444','#06b6d4'];
+      const shelf = document.getElementById('featuredShelf');
+      if (!books.length) { shelf.style.display='none'; return; }
+      shelf.innerHTML = books.map((b, i) => `
+        <div class="book-card">
+          <div class="book-card-spine" style="background:${spineColors[i % spineColors.length]}"></div>
+          <div class="book-card-body">
+            <div class="book-card-title">${b.title}</div>
+            <div class="book-card-author">${b.author}</div>
+            <div class="book-card-genre">${b.genre}</div>
+          </div>
+        </div>`).join('');
+    } catch(e) {
+      document.getElementById('featuredShelf').style.display = 'none';
+    }
+  })();
+</script>
 </body>
 </html>

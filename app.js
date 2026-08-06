@@ -9,6 +9,7 @@ const bookRoutes = require("./routes/bookRoutes");
 const loanRoutes = require("./routes/loanRoutes");
 const memberRoutes = require("./routes/memberRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 const { initializeDatabase, getDb } = require("./data/db");
 
 const app = express();
@@ -45,6 +46,7 @@ app.use("/api/books", bookRoutes);
 app.use("/api/loans", loanRoutes);
 app.use("/api/members", memberRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Static frontend — same folder as this file (index.html, member.html, admin.html, style.css)
 app.use(express.static(path.join(__dirname, "public")));
