@@ -106,6 +106,11 @@ async function loadBooks(resetPagination = true) {
   document.getElementById('stripGenres').textContent = genres || '—';
 
   renderTable();
+
+  if (!_genresInitialized) {
+    _genresInitialized = true;
+    await populateDynamicGenres();
+  }
 }
 
 function showMsg(text, ok) {
@@ -135,6 +140,81 @@ async function reserveBook(bookId, btn) {
   } finally {
     btn.textContent = originalText;
     btn.disabled = false;
+  }
+}
+
+let _genresInitialized = false;
+
+async function populateDynamicGenres() {
+  try {
+    const data = await api("/api/books");
+    const booksList = data.books || [];
+    
+    // Extract unique non-empty genres
+    const genresSet = new Set();
+    booksList.forEach(b => {
+      if (b.genre && b.genre.trim()) {
+        genresSet.add(b.genre.trim());
+      }
+    });
+    
+    const uniqueGenres = Array.from(genresSet).sort();
+
+    // Populate #genreFilter dropdown
+    const genreSelect = document.getElementById("genreFilter");
+    if (genreSelect) {
+      const currentSelected = genreSelect.value;
+      genreSelect.innerHTML = `<option value="">All Genres</option>` +
+        uniqueGenres.map(g => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join("");
+      if (currentSelected && uniqueGenres.includes(currentSelected)) {
+        genreSelect.value = currentSelected;
+      }
+    }
+
+    // Populate #genrePills container dynamically
+    const pillsContainer = document.getElementById("genrePills");
+    if (pillsContainer) {
+      const genreIcons = {
+        "Fiction": "📖",
+        "Technology": "💻",
+        "History": "🕰️",
+        "Self-Help": "🌱",
+        "Science": "🔭",
+        "Fantasy": "🧙‍♂️",
+        "Mystery": "🕵️‍♂️",
+        "Romance": "💖",
+        "Dystopian": "🏙️",
+        "Classic": "🏛️",
+        "Philosophy": "📜",
+        "Biography": "👤"
+      };
+
+      const currentGenreVal = genreSelect ? genreSelect.value : "";
+
+      let html = `<span class="genre-pill ${!currentGenreVal ? 'active' : ''}" data-genre=""><span class="genre-pill-icon">✨</span>All Genres</span>`;
+      html += uniqueGenres.map(g => {
+        const icon = genreIcons[g] || "📚";
+        const isActive = currentGenreVal === g ? "active" : "";
+        return `<span class="genre-pill ${isActive}" data-genre="${escapeHtml(g)}"><span class="genre-pill-icon">${icon}</span>${escapeHtml(g)}</span>`;
+      }).join("");
+      
+      pillsContainer.innerHTML = html;
+
+      // Add click listener to pills
+      pillsContainer.querySelectorAll(".genre-pill").forEach(pill => {
+        pill.addEventListener("click", () => {
+          pillsContainer.querySelectorAll(".genre-pill").forEach(p => p.classList.remove("active"));
+          pill.classList.add("active");
+          const selectedGenre = pill.dataset.genre || "";
+          if (genreSelect) {
+            genreSelect.value = selectedGenre;
+          }
+          loadBooks(true);
+        });
+      });
+    }
+  } catch (e) {
+    console.error("Failed to populate dynamic genres:", e);
   }
 }
 
