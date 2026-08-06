@@ -33,7 +33,7 @@ async function ensureIndexes(database) {
     database.collection("librarians").createIndex({ nameLower: 1 }, { unique: true }),
     database.collection("loans").createIndex({ id: 1 }, { unique: true }),
     database.collection("counters").createIndex({ name: 1 }, { unique: true }),
-    // support additional telemetry collections
+
     database.collection("auditLogs").createIndex({ createdAt: -1 }),
     database.collection("payments").createIndex({ loanId: 1 }),
     database.collection("notifications").createIndex({ memberId: 1, createdAt: -1 })

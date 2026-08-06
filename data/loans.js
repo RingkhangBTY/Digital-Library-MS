@@ -5,7 +5,7 @@ const audit = require("./audit");
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const LOAN_DAYS = 14;
-const FINE_PER_DAY = 5; // ₹5/day, matches ₹20 fine on a 4-day-overdue book in the mockup
+const FINE_PER_DAY = 5; // ₹5/day
 
 function daysFromNow(n) { return new Date(Date.now() + n * DAY_MS).toISOString().slice(0, 10); }
 

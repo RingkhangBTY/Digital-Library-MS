@@ -20,7 +20,7 @@ async function enrich(loan) {
   };
 }
 
-// Member: reserve a book (only makes sense if it's unavailable, but we allow either way per brief)
+// Member: reserve a book
 router.post("/reserve", requireMember, asyncHandler(async (req, res) => {
   const { bookId } = req.body;
   const book = await books.getById(bookId);
@@ -144,7 +144,7 @@ router.get("/export", requireLibrarian, asyncHandler(async (req, res) => {
   const allLoans = await loans.getAll();
   const enriched = await Promise.all(allLoans.map(enrich));
   // build CSV
-  const headers = ["id","bookId","bookTitle","memberId","memberName","status","borrowDate","dueDate","returnDate","fine","renewalCount"];
+  const headers = ["id", "bookId", "bookTitle", "memberId", "memberName", "status", "borrowDate", "dueDate", "returnDate", "fine", "renewalCount"];
   const rows = enriched.map(l => headers.map(h => {
     const v = l[h] !== undefined ? l[h] : "";
     // escape double quotes
