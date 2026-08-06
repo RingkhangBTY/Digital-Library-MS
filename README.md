@@ -58,6 +58,22 @@ SESSION_SECRET=replace-with-a-strong-random-secret
 
 The application no longer seeds predefined books, users, librarians, or loans at startup. Manage all records directly in your MongoDB database.
 
+## Environment variables (additional)
+
+- MAX_BORROW (optional): Maximum simultaneous active loans per member (default: 5).
+- MAX_RENEWALS (optional): Maximum number of renewals per loan (default: 2).
+- MAINTENANCE_TOKEN (optional): An opaque token used to secure scheduled maintenance endpoints (used by host cron jobs). If set, you can call the maintenance endpoint using the token instead of a librarian session.
+
+## Scheduling background maintenance (Render example)
+
+To run daily recalculation of overdue statuses and fines, configure a scheduled job in your host to POST to the maintenance endpoint. Example (Render scheduled job):
+
+- Command to run (Render cron job):
+
+  curl -X POST "https://<your-app>.onrender.com/api/loans/recalculate?token=<MAINTENANCE_TOKEN>"
+
+If you do not wish to use MAINTENANCE_TOKEN, the endpoint can also be triggered by an authenticated librarian session via POST /api/loans/recalculate.
+
 ## Notes for next steps
 
 - Passwords are hashed with a salted SHA-256 (Node's built-in `crypto`); for production, prefer `bcrypt` or `argon2`.
