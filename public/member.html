@@ -81,6 +81,14 @@
       <div class="section-card">
         <h3>🔔 Notifications</h3>
         <ul class="notifyList" id="notifyList"></ul>
+
+        <div id="notifyShowMoreWrapper" class="show-more-wrapper" style="display:none;margin-top:14px;">
+          <div class="show-btn-group">
+            <button id="notifyShowMoreBtn" class="show-more-btn">Show More</button>
+            <button id="notifyShowLessBtn" class="show-less-btn" style="display:none;">Show Less</button>
+          </div>
+          <span id="notifyShowMoreCount" class="show-more-count">Showing 5 notifications</span>
+        </div>
       </div>
 
       <div class="section-card">
@@ -137,6 +145,8 @@
                 <th>Title</th>
                 <th>Borrowed On</th>
                 <th>Returned On</th>
+                <th>Fine</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody id="historyBody">

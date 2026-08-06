@@ -81,12 +81,19 @@ function toPublic(account) {
   return pub;
 }
 
+async function deleteMember(id) {
+  const db = await getDb();
+  const res = await db.collection("members").deleteOne({ id: Number(id) });
+  return res.deletedCount === 1;
+}
+
 module.exports = {
   getAllMembers,
   getMemberById,
   getMemberByName,
   verifyMemberPassword,
   createMember,
+  deleteMember,
   getLibrarianByName,
   verifyLibrarianPassword,
   toPublic

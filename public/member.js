@@ -167,16 +167,50 @@ function loanRow(loan, kind) {
         <td data-label="Action"><button data-loan-id="${loan.id}" class="cancel-btn danger">Cancel</button></td>
       </tr>`;
   }
+  const fineText = loan.fine > 0 ? `<span class="status-issued">₹${loan.fine} fine</span>` : "₹0";
+  const payBtn = loan.fine > 0 ? `<button data-loan-id="${loan.id}" class="pay-btn secondary">Pay Fine Online</button>` : "";
   return `
     <tr>
       <td data-label="Title">${escapeHtml(loan.bookTitle)}</td>
       <td data-label="Borrowed On">${escapeHtml(loan.borrowDate || "—")}</td>
       <td data-label="Returned On">${escapeHtml(loan.returnDate || "—")}</td>
+      <td data-label="Fine">${fineText}</td>
+      <td data-label="Action" class="action-cell">${payBtn}</td>
     </tr>`;
 }
 
-async function renderNotifications(loans) {
+let _notifyVisibleCount = 5;
+let _currentNotificationsList = [];
+
+function renderNotificationItems() {
   const notifyList = document.getElementById("notifyList");
+  const wrapper = document.getElementById("notifyShowMoreWrapper");
+  const moreBtn = document.getElementById("notifyShowMoreBtn");
+  const lessBtn = document.getElementById("notifyShowLessBtn");
+  const countSpan = document.getElementById("notifyShowMoreCount");
+
+  if (!_currentNotificationsList.length) {
+    notifyList.innerHTML = `<li>✅ No new notifications.</li>`;
+    if (wrapper) wrapper.style.display = "none";
+    return;
+  }
+
+  const displayed = _currentNotificationsList.slice(0, _notifyVisibleCount);
+  notifyList.innerHTML = displayed.join("");
+
+  if (wrapper && countSpan) {
+    if (_currentNotificationsList.length > 5) {
+      wrapper.style.display = "flex";
+      countSpan.textContent = `Showing ${displayed.length} of ${_currentNotificationsList.length} notifications`;
+      if (moreBtn) moreBtn.style.display = _notifyVisibleCount < _currentNotificationsList.length ? "inline-flex" : "none";
+      if (lessBtn) lessBtn.style.display = _notifyVisibleCount > 5 ? "inline-flex" : "none";
+    } else {
+      wrapper.style.display = "none";
+    }
+  }
+}
+
+async function renderNotifications(loans) {
   const notificationData = await api("/api/notifications/mine");
   const persisted = notificationData.notifications || [];
   const persistedItems = persisted.map((n) => {
@@ -193,8 +227,8 @@ async function renderNotifications(loans) {
     fallback.push(`<li>📦 <strong>"${escapeHtml(l.bookTitle)}"</strong> is on hold for pickup.</li>`);
   });
 
-  const merged = persistedItems.length ? persistedItems : fallback;
-  notifyList.innerHTML = merged.length ? merged.join("") : `<li>✅ No new notifications.</li>`;
+  _currentNotificationsList = persistedItems.length ? persistedItems : fallback;
+  renderNotificationItems();
 }
 
 async function loadPortalData() {
@@ -205,8 +239,8 @@ async function loadPortalData() {
   const reserved = loans.filter(l => l.status === "reserved" || l.status === "on-hold");
   const history = loans.filter(l => l.status === "returned");
 
-  // Populate summary cards
-  const totalFine = borrowed.reduce((sum, l) => sum + (l.fine || 0), 0);
+  // Populate summary cards across all loans
+  const totalFine = loans.reduce((sum, l) => sum + (l.fine || 0), 0);
   document.getElementById('sumBorrowed').textContent = borrowed.length;
   document.getElementById('sumReserved').textContent = reserved.length;
   document.getElementById('sumFine').textContent = '₹' + totalFine;
@@ -214,7 +248,7 @@ async function loadPortalData() {
 
   const emptyBorrowed = `<tr><td colspan="4"><div class="empty-state"><span class="empty-state-icon">📭</span>No books currently borrowed.</div></td></tr>`;
   const emptyReserved = `<tr><td colspan="3"><div class="empty-state"><span class="empty-state-icon">🔖</span>No active reservations.</div></td></tr>`;
-  const emptyHistory = `<tr><td colspan="3"><div class="empty-state"><span class="empty-state-icon">📚</span>No borrowing history yet.</div></td></tr>`;
+  const emptyHistory = `<tr><td colspan="5"><div class="empty-state"><span class="empty-state-icon">📚</span>No borrowing history yet.</div></td></tr>`;
 
   document.getElementById("borrowedBody").innerHTML = borrowed.length ? borrowed.map(l => loanRow(l, "borrowed")).join("") : emptyBorrowed;
   document.getElementById("reservedBody").innerHTML = reserved.length ? reserved.map(l => loanRow(l, "reserved")).join("") : emptyReserved;
@@ -315,6 +349,21 @@ document.addEventListener("click", (event) => {
     loadPortalData();
   }
 });
+
+const notifyShowMoreBtn = document.getElementById("notifyShowMoreBtn");
+if (notifyShowMoreBtn) {
+  notifyShowMoreBtn.addEventListener("click", () => {
+    _notifyVisibleCount += 5;
+    renderNotificationItems();
+  });
+}
+const notifyShowLessBtn = document.getElementById("notifyShowLessBtn");
+if (notifyShowLessBtn) {
+  notifyShowLessBtn.addEventListener("click", () => {
+    _notifyVisibleCount = Math.max(5, _notifyVisibleCount - 5);
+    renderNotificationItems();
+  });
+}
 
 (async function init() {
   const member = await checkSession();

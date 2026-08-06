@@ -53,138 +53,239 @@
         <button id="logoutBtn" class="secondary">Log out</button>
       </div>
 
-      <h3>Analytics Dashboard</h3>
-      <div class="statGrid" id="statGrid"></div>
+      <div class="admin-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="admin-sidebar">
+          <div class="sidebar-header">
+            <span class="sidebar-title">Navigation</span>
+          </div>
+          <nav class="sidebar-nav">
+            <button type="button" class="sidebar-btn active" data-target="admin-sec-dashboard">
+              <span class="nav-icon">📊</span> Overview
+            </button>
+            <button type="button" class="sidebar-btn" data-target="admin-sec-inventory">
+              <span class="nav-icon">📚</span> Book Inventory
+            </button>
+            <button type="button" class="sidebar-btn" data-target="admin-sec-reservations">
+              <span class="nav-icon">🔖</span> Reservations
+              <span class="badge-count" id="resBadgeCount">0</span>
+            </button>
+            <button type="button" class="sidebar-btn" data-target="admin-sec-members">
+              <span class="nav-icon">👥</span> All Members
+            </button>
+            <button type="button" class="sidebar-btn" data-target="admin-sec-circulation">
+              <span class="nav-icon">🔁</span> Issue &amp; Return
+            </button>
+            <button type="button" class="sidebar-btn" data-target="admin-sec-fines">
+              <span class="nav-icon">💰</span> Fine Payments
+            </button>
+            <button type="button" class="sidebar-btn" data-target="admin-sec-audit">
+              <span class="nav-icon">📜</span> Audit Logs
+            </button>
+          </nav>
+        </aside>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Most Borrowed Books</th>
-            <th>Times Borrowed</th>
-          </tr>
-        </thead>
-        <tbody id="mostBorrowedBody">
-          <tr>
-            <td colspan="2">Loading…</td>
-          </tr>
-        </tbody>
-      </table>
+        <!-- Main Admin Content Area -->
+        <div class="admin-content">
 
-      <h3 id="bookFormTitle">Add New Book</h3>
-      <div id="addBookMsg" class="msg"></div>
-      <form class="inline-form" id="addBookForm">
-        <input type="hidden" id="editingBookId">
-        <input type="text" id="newTitle" placeholder="Title" required>
-        <input type="text" id="newAuthor" placeholder="Author" required>
-        <input type="text" id="newGenre" placeholder="Genre">
-        <input type="text" id="newBranch" placeholder="Branch">
-        <input type="text" id="newFormat" placeholder="Format" value="Physical">
-        <input type="number" id="newCopies" placeholder="Total copies" min="1" value="1" style="width:110px;">
-        <button type="submit" id="bookSubmitBtn">Add Book</button>
-        <button type="button" id="cancelEditBtn" class="secondary" style="display:none;">Cancel</button>
-      </form>
+          <!-- Section: Dashboard -->
+          <div id="admin-sec-dashboard" class="admin-tab-content active">
+            <h3>Analytics Dashboard</h3>
+            <div class="statGrid" id="statGrid"></div>
 
-      <h3>Issue Book to Member</h3>
-      <div id="issueMsg" class="msg"></div>
-      <form class="inline-form" id="issueForm">
-        <select id="issueBookSelect"></select>
-        <select id="issueMemberSelect"></select>
-        <button type="submit">Issue</button>
-      </form>
+            <h3 style="margin-top: 28px;">Most Borrowed Books</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Times Borrowed</th>
+                </tr>
+              </thead>
+              <tbody id="mostBorrowedBody">
+                <tr><td colspan="2">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
 
-      <h3>Return Book</h3>
-      <div id="returnMsg" class="msg"></div>
-      <form class="inline-form" id="returnForm">
-        <select id="returnLoanSelect"></select>
-        <button type="submit">Return</button>
-      </form>
+          <!-- Section: Inventory & Books -->
+          <div id="admin-sec-inventory" class="admin-tab-content">
+            <h3>All Books (Inventory)</h3>
+            <div class="controls" style="margin-bottom:10px;">
+              <input type="text" id="inventorySearch" placeholder="🔍  Search by title, author or genre…" style="flex:1;min-width:220px;">
+              <select id="inventoryStatusFilter">
+                <option value="">All Status</option>
+                <option value="available">Available</option>
+                <option value="issued">Fully Issued</option>
+              </select>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Author</th>
+                  <th>Genre</th>
+                  <th>Copies</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="inventoryBody">
+                <tr><td colspan="6">Loading…</td></tr>
+              </tbody>
+            </table>
 
-      <h3>All Members</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Books Currently Borrowed</th>
-          </tr>
-        </thead>
-        <tbody id="membersBody">
-          <tr>
-            <td colspan="2">Loading…</td>
-          </tr>
-        </tbody>
-      </table>
+            <div id="invShowMoreWrapper" class="show-more-wrapper" style="display:none;">
+              <div class="show-btn-group">
+                <button id="invShowMoreBtn" class="show-more-btn">Show 5 More</button>
+                <button id="invShowLessBtn" class="show-less-btn" style="display:none;">Show Less</button>
+              </div>
+              <span id="invShowMoreCount" class="show-more-count">Showing 10 books</span>
+            </div>
 
-      <h3>Recent Fine Payments</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Loan ID</th>
-            <th>Member ID</th>
-            <th>Amount</th>
-            <th>Paid At</th>
-          </tr>
-        </thead>
-        <tbody id="paymentsBody">
-          <tr>
-            <td colspan="4">Loading…</td>
-          </tr>
-        </tbody>
-      </table>
+            <h3 id="bookFormTitle" style="margin-top: 36px;">Add New Book</h3>
+            <div id="addBookMsg" class="msg"></div>
+            <form class="inline-form" id="addBookForm">
+              <input type="hidden" id="editingBookId">
+              <input type="text" id="newTitle" placeholder="Title" required>
+              <input type="text" id="newAuthor" placeholder="Author" required>
+              <input type="text" id="newGenre" placeholder="Genre">
+              <input type="text" id="newBranch" placeholder="Branch">
+              <input type="text" id="newFormat" placeholder="Format" value="Physical">
+              <input type="number" id="newCopies" placeholder="Total copies" min="1" value="1" style="width:110px;">
+              <button type="submit" id="bookSubmitBtn">Add Book</button>
+              <button type="button" id="cancelEditBtn" class="secondary" style="display:none;">Cancel</button>
+            </form>
+          </div>
 
-      <h3>Audit Log</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>When</th>
-            <th>Action</th>
-            <th>Actor</th>
-            <th>Target</th>
-          </tr>
-        </thead>
-        <tbody id="auditBody">
-          <tr>
-            <td colspan="4">Loading…</td>
-          </tr>
-        </tbody>
-      </table>
+          <!-- Section: Member Reservations (NEW) -->
+          <div id="admin-sec-reservations" class="admin-tab-content">
+            <h3>Member Reservations</h3>
+            <p class="section-desc">View books reserved by members. Issue reserved books directly to members when copies become available.</p>
+            <div id="reservationAdminMsg" class="msg"></div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Member Name</th>
+                  <th>Member Email</th>
+                  <th>Book Title</th>
+                  <th>Copy Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="reservationsAdminBody">
+                <tr><td colspan="5">Loading reservations…</td></tr>
+              </tbody>
+            </table>
+          </div>
 
-      <h3>All Books (Inventory)</h3>
-      <div class="controls" style="margin-bottom:10px;">
-        <input type="text" id="inventorySearch" placeholder="🔍  Search by title, author or genre…"
-          style="flex:1;min-width:220px;">
-        <select id="inventoryStatusFilter">
-          <option value="">All Status</option>
-          <option value="available">Available</option>
-          <option value="issued">Fully Issued</option>
-        </select>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Genre</th>
-            <th>Copies</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="inventoryBody">
-          <tr>
-            <td colspan="6">Loading…</td>
-          </tr>
-        </tbody>
-      </table>
+          <!-- Section: Members -->
+          <div id="admin-sec-members" class="admin-tab-content">
+            <h3>All Members</h3>
+            <p class="section-desc">Search and manage member accounts, view active loans, reservations, and complete borrowing history.</p>
+            <div class="controls" style="margin-bottom:12px;">
+              <input type="text" id="memberSearch" placeholder="🔍  Search members by name or email…" style="flex:1;min-width:240px;">
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Active Borrowed</th>
+                  <th>Reservations</th>
+                  <th>Pending Fines</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="membersBody">
+                <tr><td colspan="6">Loading members…</td></tr>
+              </tbody>
+            </table>
 
-      <div id="invShowMoreWrapper" class="show-more-wrapper" style="display:none;">
-        <div class="show-btn-group">
-          <button id="invShowMoreBtn" class="show-more-btn">Show 5 More</button>
-          <button id="invShowLessBtn" class="show-less-btn" style="display:none;">Show Less</button>
+            <div id="memberShowMoreWrapper" class="show-more-wrapper" style="display:none;">
+              <div class="show-btn-group">
+                <button id="memberShowMoreBtn" class="show-more-btn">Show 5 More</button>
+                <button id="memberShowLessBtn" class="show-less-btn" style="display:none;">Show Less</button>
+              </div>
+              <span id="memberShowMoreCount" class="show-more-count">Showing 10 members</span>
+            </div>
+          </div>
+
+          <!-- Section: Circulation (Issue & Return) -->
+          <div id="admin-sec-circulation" class="admin-tab-content">
+            <h3>Issue Book to Member</h3>
+            <div id="issueMsg" class="msg"></div>
+            <form class="inline-form" id="issueForm">
+              <select id="issueBookSelect"></select>
+              <select id="issueMemberSelect"></select>
+              <button type="submit">Issue</button>
+            </form>
+
+            <h3 style="margin-top: 36px;">Return Book</h3>
+            <div id="returnMsg" class="msg"></div>
+            <form class="inline-form" id="returnForm">
+              <select id="returnLoanSelect"></select>
+              <button type="submit">Return</button>
+            </form>
+          </div>
+
+          <!-- Section: Fine Payments -->
+          <div id="admin-sec-fines" class="admin-tab-content">
+            <h3>Recent Fine Payments</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Loan ID</th>
+                  <th>Member ID</th>
+                  <th>Amount</th>
+                  <th>Paid At</th>
+                </tr>
+              </thead>
+              <tbody id="paymentsBody">
+                <tr><td colspan="4">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Section: Audit Logs -->
+          <div id="admin-sec-audit" class="admin-tab-content">
+            <h3>Audit Log</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>When</th>
+                  <th>Action</th>
+                  <th>Actor</th>
+                  <th>Target</th>
+                </tr>
+              </thead>
+              <tbody id="auditBody">
+                <tr><td colspan="4">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+
         </div>
-        <span id="invShowMoreCount" class="show-more-count">Showing 10 books</span>
       </div>
     </div>
   </main>
+
+  <!-- Member Details & Complete History Modal -->
+  <div id="memberDetailsModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card wide-modal">
+      <div class="modal-header">
+        <div>
+          <h3 id="modalMemberName">Member Details</h3>
+          <p class="modal-subtitle" id="modalMemberEmail"></p>
+        </div>
+        <button id="closeMemberModalBtn" class="modal-close-btn" title="Close">×</button>
+      </div>
+      <div id="modalMemberMsg" class="msg"></div>
+
+      <div class="modal-body" id="modalMemberBody">
+        <div style="text-align:center;padding:24px;color:var(--text-muted);">Loading member history…</div>
+      </div>
+    </div>
+  </div>
 
   <footer>Digital Library Management System &nbsp;·&nbsp; Built with Node.js, Express &amp; MongoDB</footer>
 

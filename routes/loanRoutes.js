@@ -16,7 +16,10 @@ async function enrich(loan) {
     ...loan,
     bookTitle: book ? book.title : "Unknown book",
     bookAuthor: book ? book.author : "",
-    memberName: member ? member.name : "Unknown member"
+    availableCopies: book ? book.availableCopies : 0,
+    totalCopies: book ? book.totalCopies : 0,
+    memberName: member ? member.name : "Unknown member",
+    memberEmail: member ? member.email : ""
   };
 }
 
@@ -25,8 +28,51 @@ router.post("/reserve", requireMember, asyncHandler(async (req, res) => {
   const { bookId } = req.body;
   const book = await books.getById(bookId);
   if (!book) return res.status(404).json({ error: "Book not found." });
+
+  // Robust check: Guard against duplicate active reservations or current borrowed loans for the same book
+  const memberLoans = await loans.getByMember(req.session.member.id);
+  const existingActive = memberLoans.find(l => 
+    Number(l.bookId) === Number(bookId) && 
+    (l.status === "reserved" || l.status === "on-hold" || l.status === "borrowed" || l.status === "overdue")
+  );
+
+  if (existingActive) {
+    if (existingActive.status === "reserved" || existingActive.status === "on-hold") {
+      return res.status(409).json({ error: `You have already reserved "${book.title}". Multiple reservations for the same book are not allowed.` });
+    } else {
+      return res.status(409).json({ error: `You currently have "${book.title}" borrowed. You cannot reserve a book you already have.` });
+    }
+  }
+
   const loan = await loans.reserve({ bookId, memberId: req.session.member.id });
-  res.status(201).json({ loan: await enrich(loan) });
+  await audit.log("reserve", req.session.member.id, "member", "loan", loan.id, { bookId });
+  res.status(201).json({ loan: await enrich(loan), message: `🎉 Book "${book.title}" successfully reserved!` });
+}));
+
+// Librarian: list all active reservations
+router.get("/reservations", requireLibrarian, asyncHandler(async (req, res) => {
+  const allLoans = await loans.getAll();
+  const reservations = allLoans.filter(l => l.status === "reserved" || l.status === "on-hold");
+  const enriched = await Promise.all(reservations.map(enrich));
+  res.json({ reservations: enriched });
+}));
+
+// Librarian: issue a reserved book to the member
+router.post("/issue-reservation", requireLibrarian, asyncHandler(async (req, res) => {
+  const { loanId } = req.body;
+  if (!loanId) return res.status(400).json({ error: "Loan ID is required." });
+  const updatedLoan = await loans.issueReservation(loanId);
+  await audit.log("issue-reservation", req.session.librarian ? req.session.librarian.id : null, "librarian", "loan", loanId, { bookId: updatedLoan.bookId, memberId: updatedLoan.memberId });
+  res.json({ loan: await enrich(updatedLoan), message: "Reservation issued to member successfully." });
+}));
+
+// Librarian: cancel a member's reservation
+router.delete("/admin-reservation/:id", requireLibrarian, asyncHandler(async (req, res) => {
+  const loan = await loans.getById(req.params.id);
+  if (!loan) return res.status(404).json({ error: "Reservation not found." });
+  await loans.cancelReservation(req.params.id);
+  await audit.log("cancel-reservation-admin", req.session.librarian ? req.session.librarian.id : null, "librarian", "loan", req.params.id, { bookId: loan.bookId, memberId: loan.memberId });
+  res.json({ message: "Reservation cancelled by librarian." });
 }));
 
 // Librarian: issue a book directly to a member
